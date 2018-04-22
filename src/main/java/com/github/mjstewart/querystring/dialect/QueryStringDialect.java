@@ -1,4 +1,4 @@
-package dialect;
+package com.github.mjstewart.querystring.dialect;
 
 import org.thymeleaf.dialect.AbstractDialect;
 import org.thymeleaf.dialect.IExpressionObjectDialect;

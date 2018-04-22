@@ -1,9 +1,9 @@
-package expression;
+package com.github.mjstewart.querystring.expression;
 
 import org.thymeleaf.expression.Uris;
-import util.QueryString;
-import util.QueryStringUtil;
-import util.SortDirection;
+import com.github.mjstewart.querystring.util.QueryString;
+import com.github.mjstewart.querystring.util.QueryStringUtil;
+import com.github.mjstewart.querystring.util.SortDirection;
 
 import java.util.*;
 import java.util.function.Function;
@@ -12,12 +12,8 @@ import java.util.stream.Collectors;
 
 /**
  * This class provides the public methods exposed to the thymeleaf template caller.
- *
- * <p>Since {@code #request.getQueryString()} may be {@code null} or empty, this is the only argument to each
- * method that should be tested. Its reasonable to assume the caller will use the methods as instructed with plenty
- * of examples provided.</p>
  */
-public class QueryStringHelper {
+public final class QueryStringHelper {
 
     private final Uris uris = new Uris();
 

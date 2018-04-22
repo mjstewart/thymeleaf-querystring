@@ -1,4 +1,4 @@
-package util;
+package com.github.mjstewart.querystring.util;
 
 import java.util.List;
 import java.util.Optional;

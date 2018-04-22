@@ -1,4 +1,4 @@
-package expression;
+package com.github.mjstewart.querystring.expression;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package util;
+package com.github.mjstewart.querystring.util;
 
 import org.thymeleaf.IEngineConfiguration;
 import org.thymeleaf.context.IExpressionContext;

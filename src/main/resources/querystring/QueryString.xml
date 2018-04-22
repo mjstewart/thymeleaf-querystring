@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<dialect xmlns="http://www.thymeleaf.org/extras/dialect"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.thymeleaf.org/extras/dialect
+	                         http://www.thymeleaf.org/xsd/thymeleaf-extras-dialect-2.1.xsd"
+         prefix="qs"
+         namespace-uri="https://github.com/mjstewart/thymeleaf-querystring"
+         namespace-strict="false"
+         class="com.github.mjstewart.querystring.dialect.QueryStringDialect">
+
+    <expression-object name="qs" class="com.github.mjstewart.querystring.expression.QueryStringHelper">
+        <documentation reference="Thymeleaf query string module readme"><![CDATA[
+			<a href="https://github.com/mjstewart/thymeleaf-querystring">https://github.com/mjstewart/thymeleaf-querystring</a>
+		]]></documentation>
+    </expression-object>
+
+</dialect>

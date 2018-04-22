@@ -1,6 +1,6 @@
-package dialect;
+package com.github.mjstewart.querystring.dialect;
 
-import expression.QueryStringHelper;
+import com.github.mjstewart.querystring.expression.QueryStringHelper;
 import org.thymeleaf.context.IExpressionContext;
 import org.thymeleaf.expression.IExpressionObjectFactory;
 
