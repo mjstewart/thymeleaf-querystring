@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"com.github.mjstewart.querystring.dialect"},{"l":"com.github.mjstewart.querystring.expression"},{"l":"com.github.mjstewart.querystring.util"}]

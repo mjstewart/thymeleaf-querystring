@@ -23,6 +23,7 @@
         <maven.compile.target>1.8</maven.compile.target>
         <thymeleaf.version>3.0.0.RELEASE</thymeleaf.version>
         <junit.version>4.12</junit.version>
+        <api.docs.directory>${project.basedir}/docs</api.docs.directory>
     </properties>
 
     <build>
@@ -42,6 +43,18 @@
             </plugin>
 
             <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${api.docs.directory}</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.7.0</version>
@@ -57,7 +70,8 @@
                 <configuration>
                     <!--<overview>${basedir}/src/main/javadoc/overview.html</overview>-->
                     <!--<javadocDirectory>${basedir}/src/main/javadoc</javadocDirectory>-->
-                    <outputDirectory>${project.build.directory}/apidocs</outputDirectory>
+                    <outputDirectory>${api.docs.directory}</outputDirectory>
+                    <!--<outputDirectory>${project.build.directory}/docs</outputDirectory>-->
                     <additionalparam>-Xdoclint:none</additionalparam>
                     <!--<sourceFileIncludes>-->
                         <!--<include>QueryStringHelper.java</include>-->
