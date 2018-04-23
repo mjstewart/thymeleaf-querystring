@@ -550,16 +550,28 @@ public class RemoveTest {
     }
 
     /**
-     * The equality check should not take case into consideration.
+     * The equality should be case sensitive.
      */
     @Test
-    public void removeKeyMatchingValue_MatchingValueFound_CaseInsensitive() {
+    public void removeKeyMatchingValue_MatchingValueFound_CaseSensitive() {
         String query = "key4=ALL%20SORTED%202%2055_t3.7&key2=ValueA&key3=ValueA&key4=ALL%20SORTED%203&key2=ALL%20SORTED%202%2055_t3.7";
         String expected = "key4=ALL%20SORTED%202%2055_t3.7&key2=ValueA&key3=ValueA&key4=ALL%20SORTED%203";
 
         QueryStringHelper helper = new QueryStringHelper();
-        String result = helper.removeKeyMatchingValue(query, "key2", "alL sOrtEd 2 55_t3.7");
+        String result = helper.removeKeyMatchingValue(query, "key2", "ALL SORTED 2 55_t3.7");
         assertThat(result).isEqualTo(expected);
+    }
+
+    /**
+     * The equality should not remove anything if a case insensitive match is found.
+     */
+    @Test
+    public void removeKeyMatchingValue_MatchingValueFound_CaseSensitive_Negative() {
+        String query = "key4=ALL%20SORTED%202%2055_t3.7&key2=ValueA&key3=ValueA&key4=ALL%20SORTED%203&key2=ALL%20SORTED%202%2055_t3.7";
+
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.removeKeyMatchingValue(query, "key2", "aLL sORTED 2 55_t3.7");
+        assertThat(result).isEqualTo(query);
     }
 
     @Test
@@ -659,15 +671,27 @@ public class RemoveTest {
     }
 
     /**
-     * The equality check should not take case into consideration.
+     * The equality check should be case sensitive.
      */
     @Test
-    public void removeAnyKeyMatchingValue_MatchingValueFound_CaseInsensitive() {
+    public void removeAnyKeyMatchingValue_MatchingValueFound_CaseSensitive() {
         String query = "key4=ALL%20SORTED%202%20-%2099.6-12&key2=ValueA&key3=ALL%20SORTED%202%20-%2099.6-12&key2=ValueA&key4=ValueA&key2=ALL%20SORTED%202%20-%2099.6-12";
         String expected = "key2=ValueA&key2=ValueA&key4=ValueA";
 
         QueryStringHelper helper = new QueryStringHelper();
-        String result = helper.removeAnyKeyMatchingValue(query, "aLL sOrTed 2 - 99.6-12");
+        String result = helper.removeAnyKeyMatchingValue(query, "ALL SORTED 2 - 99.6-12");
         assertThat(result).isEqualTo(expected);
+    }
+
+    /**
+     * The equality check should not remove anything if case insensitive.
+     */
+    @Test
+    public void removeAnyKeyMatchingValue_MatchingValueFound_CaseSensitive_Negative() {
+        String query = "key4=ALL%20SORTED%202%20-%2099.6-12&key2=ValueA&key3=ALL%20SORTED%202%20-%2099.6-12&key2=ValueA&key4=ValueA&key2=ALL%20SORTED%202%20-%2099.6-12";
+
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.removeAnyKeyMatchingValue(query, "aLL sORTED 2 - 99.6-12");
+        assertThat(result).isEqualTo(query);
     }
 }

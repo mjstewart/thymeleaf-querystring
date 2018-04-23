@@ -21,7 +21,7 @@ public class QueryStringUtil {
      * {@code field,sortDirection} into the query string.
      *
      * @param value The value in {@code 'field,sortDirection'} format.
-     * @return The extracted field.
+     * @return The extracted field or an empty string if the value is not in the expected format.
      */
     public static String extractSortField(String value) {
         if (value == null || value.isEmpty()) {

@@ -240,6 +240,7 @@ public final class QueryStringHelper {
     /**
      * Removes the nth relative index of the given key while maintaining the query strings original order.
      * The concept of relative index is outlined below using the {@code 'name'} key as the target.
+     * See {@link #removeManyNth(String, String, List)} to remove multiple indexes for the same key.
      *
      * <blockquote>
      * <pre>
@@ -311,9 +312,9 @@ public final class QueryStringHelper {
     }
 
     /**
-     * Removes the target key if its value is equal to the matching value by using case insensitive equality.
+     * Removes the target key if its value is exactly equal to the matching value.
      * The example shows that for the target key {@code 'region'}, only remove the key if the value is equal
-     * to 'australia'. Note the case insensitivity. Use {#link {@link #removeAnyKeyMatchingValue(String, String)}}
+     * to 'AUSTRALIA'. Note the case is sensitive. Use {@link #removeAnyKeyMatchingValue(String, String)}
      * if any key matching the value should be removed rather than a specific target key.
      *
      * <p><b>Thymeleaf usage</b></p>
@@ -321,7 +322,7 @@ public final class QueryStringHelper {
      * <pre>
      *     #request.getQueryString() = "region=AU&region=south&region=AUSTRALIA&sort=country,asc"
      *
-     *     th:with="newQueryString=${#qs.removeKeyMatchingValue(#request.getQueryString(), 'region', 'australia')}"
+     *     th:with="newQueryString=${#qs.removeKeyMatchingValue(#request.getQueryString(), 'region', 'AUSTRALIA')}"
      *     => newQueryString = "region=AU&region=south&sort=country,asc"
      * </pre>
      * </blockquote>
@@ -331,7 +332,7 @@ public final class QueryStringHelper {
      *
      * @param queryString The current query string.
      * @param key         The target key.
-     * @param valueMatch  The case insensitive value to match which triggers deletion.
+     * @param valueMatch  The case sensitive value to match which triggers deletion.
      * @return The new query string.
      */
     public String removeKeyMatchingValue(String queryString, String key, String valueMatch) {
@@ -340,15 +341,15 @@ public final class QueryStringHelper {
 
     /**
      * Similar to {@link #removeKeyMatchingValue(String, String, String)} except no target key is
-     * provided causing all keys to be eligible for removal if the value matches. Case insensitive equality applies.
+     * provided causing all keys to be eligible for removal if the value matches. Case sensitive equality applies.
      *
      * <p><b>Thymeleaf usage</b></p>
-     * <p>The example shows any key matching the value 'australia' (case insensitive) will be removed.</p>
+     * <p>The example shows any key matching the value 'AUSTRALIA' (case sensitive) will be removed.</p>
      * <blockquote>
      * <pre>
-     *     {@code #request.getQueryString() = "region=AU&region=south&region=AUSTRALIA&sort=country,asc&locale=australia"}
+     *     {@code #request.getQueryString() = "region=AU&region=south&region=AUSTRALIA&sort=country,asc&locale=AUSTRALIA"}
      *
-     *     th:with="newQueryString=${#qs.removeAnyKeyMatchingValue(#request.getQueryString(), 'australia')}"
+     *     th:with="newQueryString=${#qs.removeAnyKeyMatchingValue(#request.getQueryString(), 'AUSTRALIA')}"
      *     {@code => newQueryString = "region=AU&region=south&sort=country,asc"}
      * </pre>
      * </blockquote>
@@ -357,7 +358,7 @@ public final class QueryStringHelper {
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
      * @param queryString The current query string.
-     * @param valueMatch  The case insensitive value to match which triggers deletion.
+     * @param valueMatch  The case sensitive value to match which triggers deletion.
      * @return The new query string.
      */
     public String removeAnyKeyMatchingValue(String queryString, String valueMatch) {
@@ -927,7 +928,6 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
@@ -939,6 +939,46 @@ public final class QueryStringHelper {
         return QueryString.of(queryString, uris).toggleSortDefaultDesc(sortField);
     }
 
+    /**
+     * When the supplied {@code sortField} appears under a 'sort key' it is kept, otherwise all other sort fields are
+     * removed. If the supplied {@code sortField} does not appear under a 'sort key', ALL sort keys are removed.
+     *
+     * <h5>Thymeleaf usage</h5>
+     *
+     * <h6>Sort field exists</h6>
+     * Since 'city' appears as a sort field, all other sort fields are removed while still keeping 'city'.
+     *
+     * <blockquote>
+     * <pre>
+     *     #request.getQueryString() = "city=melbourne&country=aus&state=victoria&sort=country,asc&sort=city,desc&sort=postcode"
+     *
+     *     th:with="newQueryString=${#qs.keepSortField(#request.getQueryString(), 'city')}"
+     *     => newQueryString = city=melbourne&country=aus&state=victoria&sort=city,desc
+     * </pre>
+     * </blockquote>
+     *
+     * <h6>No sort field exist</h6>
+     * Since 'state' does not appear as a sort field, all sort fields are removed.
+     *
+     * <blockquote>
+     * <pre>
+     *     #request.getQueryString() = "city=melbourne&country=aus&state=victoria&sort=country,asc&sort=city,desc&sort=postcode"
+     *
+     *     th:with="newQueryString=${#qs.keepSortField(#request.getQueryString(), 'state')}"
+     *     => newQueryString = city=melbourne&country=aus&state=victoria
+     * </pre>
+     * </blockquote>
+     *
+     * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.
+     * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
+     *
+     * @param queryString The current query string.
+     * @param sortField   The sort field to keep should it currently exist under a sort key.
+     * @return The new query string.
+     */
+    public String keepSortField(String queryString, String sortField) {
+        return QueryString.of(queryString, uris).keepSortField(sortField);
+    }
 
     /**
      * See {@link #fieldSorterAsc(String)} since this method centralises the logic for all sort directions.
@@ -957,30 +997,32 @@ public final class QueryStringHelper {
             return addAll(queryString, newKeyValuePairs);
         }
 
-        if (isFieldSorted(queryString, field)) {
+        // keep just the sort field and toggle it
+        String afterRemovalsQueryString = QueryString.of(queryString, uris).keepSortField(field);
+        if (isFieldSorted(afterRemovalsQueryString, field)) {
             switch (defaultSortDirection) {
                 case ASC:
-                    return toggleSortDefaultAsc(queryString, field);
+                    return toggleSortDefaultAsc(afterRemovalsQueryString, field);
                 case DESC:
-                    return toggleSortDefaultDesc(queryString, field);
+                    return toggleSortDefaultDesc(afterRemovalsQueryString, field);
             }
         }
-
-        return removeAllAndAdd(queryString, Collections.singletonList("sort"), newKeyValuePairs);
+        // implies field is not associated to a sort key so append the new sort keys to the end.
+        return removeAllAndAdd(afterRemovalsQueryString, Collections.singletonList("sort"), newKeyValuePairs);
     }
 
-
     /**
-     * Returns a function accepting a sort field applying sorting logic according to the below scenarios.
+     * Returns a function accepting a sort field applying sorting logic according to the below scenarios. This is useful
+     * for applying sort toggling behavior to table columns.
      *
      * <p>Consider the query string {@code 'sort=suburb,desc'}, the sort field provided to the returned function would
      * be 'suburb'. A function is returned to allow reuse within the thymeleaf template to avoid needing
      * to provide the query string each time.</p>
-     *
-     * <p>If the {@code field} exists in the query string, it is toggled to its opposite direction.
-     * Otherwise all existing sort keys are removed with the new sort field {@code 'field,defaultDirection'}
-     * appended to the end of the new query. 'defaultDirection' is determined by the trailing 'Asc' or 'Desc' in
-     * the method name should no explicit direction be provided.</p>
+     * <p>
+     * <p>If the {@code field} already exists in the query string, it is toggled to its opposite direction with all
+     * other sort fields removed. Otherwise if the {@code field} does not exist under a 'sort key', all sorting is
+     * removed with the new sort field appended to the end of the query string having form {@code 'field,defaultDirection'}.
+     * {@code 'defaultDirection'} is determined by the trailing 'Asc' or 'Desc'.</p>
      *
      * <h5>Thymeleaf Usage</h5>
      *
@@ -998,27 +1040,27 @@ public final class QueryStringHelper {
      *
      * <h6>Field exists and has an explicit sort direction</h6>
      * <p>{@code 'country'} has current sort direction of {@code asc} resulting in the opposite direction of {@code desc}
-     * after the toggle.</p>
+     * after the toggle. Note how all other sort fields are removed.</p>
      *
      * <blockquote>
      * <pre>
      *      #request.getQueryString() = "city=melbourne&sort=country,asc&sort=city"
      *
      *     th:with="newQueryString=${#qs.fieldSorterAsc(#request.getQueryString()).apply('country')}"
-     *     => newQueryString = "city=melbourne&sort=country,desc&sort=city"
+     *     => newQueryString = "city=melbourne&sort=country,desc"
      * </pre>
      * </blockquote>
      *
      * <h6>Field exists and has implicit sort direction</h6>
      * <p>Since {@code fieldSorterAsc} is used, 'Asc' is the default direction used by 'city' given there is no explicit
-     * direction listed. The means 'city' is toggled to 'desc'.</p>
+     * direction listed. The means 'city' is toggled to 'desc'. Note how all other sort fields are removed.</p>
      *
      * <blockquote>
      * <pre>
      *     #request.getQueryString() = "city=melbourne&sort=country,asc&sort=city"
      *
      *     th:with="newQueryString=${#qs.fieldSorterAsc(#request.getQueryString()).apply('city')}"
-     *     => newQueryString = "city=melbourne&sort=country,asc&sort=city,desc"
+     *     => newQueryString = "city=melbourne&sort=city,desc"
      * </pre>
      * </blockquote>
      *
@@ -1083,8 +1125,8 @@ public final class QueryStringHelper {
      *
      * <p>Supplying a {@code null} or empty {@code queryString} will return a function accepting
      * the sort field. When this function is fully applied, the new query string will consist of 'sort=field,direction'
-     * where 'direction' is derived from the trailing 'Asc' or 'Desc' of the {@code fieldSorterXXX} method.
-     * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
+     * where 'direction' is derived from the trailing 'Asc' or 'Desc' of the {@code fieldSorterXXX} method should
+     * no explicit direction exist. All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
      * @param queryString The current query string.
      * @return Function accepting the {@code field} to sort.
@@ -1310,9 +1352,7 @@ public final class QueryStringHelper {
      * @return {@code true} if the {@code field} appears as a sort field otherwise {@code false}.
      */
     public boolean isFieldSorted(String queryString, String field) {
-        return getAllValues(queryString, "sort").stream()
-                .map(QueryStringUtil::extractSortField)
-                .anyMatch(value -> value.equals(field));
+        return QueryString.of(queryString, uris).isFieldSorted(field);
     }
 
     /**
@@ -1424,7 +1464,7 @@ public final class QueryStringHelper {
      * a solution for restrictions preventing methods receiving the {@code HttpServletRequest} directly via
      * the {@code #request} object in Thymeleaf 3.0.9.
      * <a href="http://forum.thymeleaf.org/Thymeleaf-3-0-9-JUST-PUBLISHED-td4030728.html">
-     *     http://forum.thymeleaf.org/Thymeleaf-3-0-9-JUST-PUBLISHED-td4030728.html
+     * http://forum.thymeleaf.org/Thymeleaf-3-0-9-JUST-PUBLISHED-td4030728.html
      * </a>
      *
      * <p>Since each method cannot accept a {@code #request}, its recommended to assign the query string to a new

@@ -357,7 +357,7 @@ public final class QueryString {
     }
 
     /**
-     * Removes the target key if its value is equal to the matching value. The equality is case insensitive.
+     * Removes the target key if its value is equal to the matching value. The equality is case sensitive.
      * <blockquote>
      * <pre>
      *     a=500&b=700&a=700
@@ -371,18 +371,8 @@ public final class QueryString {
      * @return The new query string or an empty string if the original query string is null or empty.
      */
     public String removeKeyMatchingValue(String key, String valueMatch) {
-        if (key != null && valueMatch != null) {
-            List<KeyValueIndex> indices = state.get(key);
-
-            if (indices != null) {
-                List<KeyValueIndex> newIndices = indices.stream()
-                        .filter(kv -> !kv.keyValue.isCaseInsensitiveEqual(valueMatch))
-                        .collect(Collectors.toList());
-
-                state.put(key, newIndices);
-            }
-        }
-
+        Function<String, String> valueExtractor = Function.identity();
+        removeKeyMatching(state.get(key), key, valueMatch, valueExtractor, false);
         return reconstructQueryString();
     }
 
@@ -402,13 +392,51 @@ public final class QueryString {
      */
     public String removeAnyKeyMatchingValue(String valueMatch) {
         for (Map.Entry<String, List<KeyValueIndex>> entry : state.entrySet()) {
-            List<KeyValueIndex> newIndices = entry.getValue().stream()
-                    .filter(kv -> !kv.keyValue.isCaseInsensitiveEqual(valueMatch))
-                    .collect(Collectors.toList());
-
-            state.put(entry.getKey(), newIndices);
+            Function<String, String> valueExtractor = Function.identity();
+            removeKeyMatching(entry.getValue(), entry.getKey(), valueMatch, valueExtractor, false);
         }
         return reconstructQueryString();
+    }
+
+    /**
+     * Removes all existing 'sort' keys and keeps the supplied {@code sortField} should it already exist as a sort key.
+     * If the {@code sortField} does not appear under a 'sort' key then ALL sort keys are removed.
+     *
+     * @param sortField The sort field to keep.
+     * @return The new query string.
+     */
+    public String keepSortField(String sortField) {
+        final String sortKey = "sort";
+        removeKeyMatching(state.get(sortKey), sortKey, sortField, QueryStringUtil::extractSortField, true);
+        return reconstructQueryString();
+    }
+
+    /**
+     * Mutates the state map by removing or keeping existing values that exactly equal {@code valueMatch} for the given
+     * {@code key}. If {@code keep} is {@code true}, only keys with matching values are kept in the state map,
+     * otherwise they are removed.
+     *
+     * @param indices    The list of key/value pairs for a given state key. Eg: {@code state.get(key)}.
+     * @param key        The key corresponding to the retrieved {@code indices} in the state map.
+     * @param valueMatch The exact case sensitive value to match.
+     * @param keep       {@code true} if when the value matches {@code valueMatch} then the key/value pair should be kept,
+     *                   otherwise {@code false} if it should be removed.
+     */
+    private void removeKeyMatching(List<KeyValueIndex> indices, String key, String valueMatch,
+                                   Function<String, String> valueExtractor,
+                                   boolean keep) {
+        if (indices != null && key != null && valueMatch != null) {
+            List<KeyValueIndex> newIndices = indices.stream()
+                    .filter(kv -> {
+                        boolean isEqual = Objects.equals(valueExtractor.apply(kv.keyValue.value), valueMatch);
+                        if (keep) {
+                            return isEqual;
+                        }
+                        return !isEqual;
+                    })
+                    .collect(Collectors.toList());
+            state.put(key, newIndices);
+        }
     }
 
     /**
@@ -517,6 +545,15 @@ public final class QueryString {
         return reconstructQueryString();
     }
 
+    /**
+     * @param field The sort field.
+     * @return {@code true} if the {@code field} appears under a 'sort' key.
+     */
+    public boolean isFieldSorted(String field) {
+        return getAllValues("sort").stream()
+                .map(QueryStringUtil::extractSortField)
+                .anyMatch(value -> value.equals(field));
+    }
 
     /**
      * Toggles the supplied {@code sortField} between ascending or descending.

@@ -837,10 +837,78 @@ public class SpringHelperTest {
         assertThat(result).isEqualTo(expect);
     }
 
+    @Test
+    public void keepSortField_QueryStringIsNull() {
+        QueryStringHelper helper = new QueryStringHelper();
+
+        String result = helper.keepSortField(null, "city");
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    public void keepSortField_QueryStringIsEmpty() {
+        QueryStringHelper helper = new QueryStringHelper();
+
+        String result = helper.keepSortField("", "city");
+        assertThat(result).isEmpty();
+    }
+
     /**
-     * When the query string is null, the new query string should be
-     * {@code sort='field,defaultDirection'} where field is 'country' and defaultDirection
-     * is determined by fieldSorterAsc (eg the 'Asc' part).
+     * 'city' exists but is not a 'sort' key such as 'sort=city,asc', therefore nothing should happen.
+     */
+    @Test
+    public void keepSortField_NoSortFields_ReturnsQueryString() {
+        String query = "state=vic&city=melbourne&postcode=3000&location=au";
+        QueryStringHelper helper = new QueryStringHelper();
+
+        String result = helper.keepSortField(query, "city");
+        assertThat(result).isEqualTo(query);
+    }
+
+    /**
+     * If the 'sortField' does not appear as a sort key then all sort keys are removed.
+     */
+    @Test
+    public void keepSortField_KeyNotInSortField_RemoveAllSorting() {
+        String query = "state=vic&city=melbourne&postcode=3000&location=au&sort=state,asc&sort=postcode";
+        String expected = "state=vic&city=melbourne&postcode=3000&location=au";
+        QueryStringHelper helper = new QueryStringHelper();
+
+        String result = helper.keepSortField(query, "city");
+        assertThat(result).isEqualTo(expected);
+    }
+
+    /**
+     * If the 'sortField' appears as a sort key, it should be the only sort key contained in the returned query string.
+     *
+     * 'postcode' is a sort field since it appears under a 'sort' key, therefore it is expected all other sort keys
+     * except 'postcode' are removed.
+     */
+    @Test
+    public void keepSortField_KeyInSortField_DeletesAllExceptKey() {
+        String query = "state=vic&city=melbourne&postcode=3000&location=au&sort=state,asc&sort=postcode&sort=city";
+        String expect = "state=vic&city=melbourne&postcode=3000&location=au&sort=postcode";
+        QueryStringHelper helper = new QueryStringHelper();
+
+        String result = helper.keepSortField(query, "postcode");
+        assertThat(result).isEqualTo(expect);
+    }
+
+    /**
+     * If the 'sortField' is the ONLY a sort key, it should still be the only sort key contained in the returned query string.
+     */
+    @Test
+    public void keepSortField_OnlyKeyInSortField_RetainSortKey() {
+        String query = "state=vic&city=melbourne&postcode=3000&location=au&sort=postcode,desc";
+        QueryStringHelper helper = new QueryStringHelper();
+
+        String result = helper.keepSortField(query, "postcode");
+        assertThat(result).isEqualTo(query);
+    }
+
+    /**
+     * When the query string is null, the new query string should be {@code sort='field,defaultDirection'} where field
+     * is 'country' and defaultDirection is determined by fieldSorterAsc (eg the 'Asc' part).
      */
     @Test
     public void fieldSorterAsc_QueryStringIsNull_ReturnsFieldWithDefaultDirection() {
@@ -852,9 +920,8 @@ public class SpringHelperTest {
     }
 
     /**
-     * When the query string is empty, the new query string should be
-     * {@code sort='field,defaultDirection'} where field is 'country' and defaultDirection
-     * is determined by fieldSorterAsc (eg the 'Asc' part).
+     * When the query string is empty, the new query string should be {@code sort='field,defaultDirection'} where
+     * field is 'country' and defaultDirection is determined by fieldSorterAsc (eg the 'Asc' part).
      */
     @Test
     public void fieldSorterAsc_QueryStringIsEmpty_ReturnsFieldWithDefaultDirection() {
@@ -867,43 +934,13 @@ public class SpringHelperTest {
     }
 
     /**
-     * fieldSorterAsc means 'Asc' is the default sort direction to use when the field has no direction.
-     * <p>
-     * Since 'city' has no direction, is its implicit direction is 'asc' resulting in 'desc' after the toggle.
+     * The current query string has only 1 sort field 'sort=city,asc'. The new sort field is 'location' which
+     * does not exist. In this case all existing sort keys should be removed with 'location' being the only sort key
+     * with its direction 'asc' determined by the trailing 'Asc' in {@code fieldSorterAsc}.
      */
     @Test
-    public void fieldSorterAsc_ImplicitSortDirection() {
-        String query = "city=melbourne&state=vic&postcode=3000&sort=city&sort=postcode";
-        String expected = "city=melbourne&state=vic&postcode=3000&sort=city,desc&sort=postcode";
-        QueryStringHelper helper = new QueryStringHelper();
-
-        String result = helper.fieldSorterAsc(query).apply("city");
-        assertThat(result).isEqualTo(expected);
-    }
-
-    /**
-     * fieldSorterAsc means 'Asc' is the default sort direction to use when the field has no direction.
-     * <p>
-     * However in this case, 'city' already has an explicit direction 'desc' so the toggle transitions it to 'asc'.
-     */
-    @Test
-    public void fieldSorterAsc_ExplicitSortDirection() {
-        String query = "city=melbourne&state=vic&postcode=3000&sort=city,desc&sort=postcode";
-        String expected = "city=melbourne&state=vic&postcode=3000&sort=city,asc&sort=postcode";
-        QueryStringHelper helper = new QueryStringHelper();
-
-        String result = helper.fieldSorterAsc(query).apply("city");
-        assertThat(result).isEqualTo(expected);
-    }
-
-    /**
-     * 'location' does not exist in the query string, therefore all existing 'sort' keys are removed with
-     * the new key 'sort=location,defaultDirection' added to the end. 'defaultDirection' is determined by
-     * the fieldSorterAsc (eg the 'Asc' at the end).
-     */
-    @Test
-    public void fieldSorterAsc_FieldDoesNotExist_ImplicitSortDirection() {
-        String query = "city=melbourne&state=vic&postcode=3000&sort=city,desc&sort=postcode";
+    public void fieldSorterAsc_OneSortField_FieldNotFound() {
+        String query = "city=melbourne&state=vic&postcode=3000&sort=city,asc";
         String expected = "city=melbourne&state=vic&postcode=3000&sort=location,asc";
         QueryStringHelper helper = new QueryStringHelper();
 
@@ -912,9 +949,84 @@ public class SpringHelperTest {
     }
 
     /**
-     * When the query string is null, the new query string should be
-     * {@code sort='field,defaultDirection'} where field is 'country' and defaultDirection
-     * is determined by fieldSorterDesc (eg the 'Desc' part).
+     * The current query string has many sort fields. The new sort field is 'location' which
+     * does not exist. In this case all existing sort keys should be removed with 'location' being the only sort key
+     * with its direction 'asc' determined by the trailing 'Asc' in {@code fieldSorterAsc}.
+     */
+    @Test
+    public void fieldSorterAsc_ManySortFields_FieldNotFound() {
+        String query = "category=large&city=melbourne&state=vic&postcode=3000&sort=city,asc&sort=state,desc&sort=category=extra%20large";
+        String expected = "category=large&city=melbourne&state=vic&postcode=3000&sort=location,asc";
+        QueryStringHelper helper = new QueryStringHelper();
+
+        String result = helper.fieldSorterAsc(query).apply("location");
+        assertThat(result).isEqualTo(expected);
+    }
+
+    /**
+     * The current query string has 1 sort field. The new sort field is 'city' which already exists with an explicit
+     * direction 'asc'. In this case the existing 'city' direction should be toggled to its opposite 'desc'.
+     */
+    @Test
+    public void fieldSorterAsc_OneSortField_SameFieldFound_ExplicitDirection() {
+        String query = "city=melbourne&state=vic&postcode=3000&sort=city,asc";
+        String expected = "city=melbourne&state=vic&postcode=3000&sort=city,desc";
+        QueryStringHelper helper = new QueryStringHelper();
+
+        String result = helper.fieldSorterAsc(query).apply("city");
+        assertThat(result).isEqualTo(expected);
+    }
+
+    /**
+     * The current query string has many sort fields. The new sort field is 'city' which already exists.
+     * In this case the existing 'city' direction should be toggled to its opposite 'desc' with all other sort fields
+     * removed.
+     */
+    @Test
+    public void fieldSorterAsc_ManySortFields_FieldFound_ExplicitDirection() {
+        String query = "category=large&city=melbourne&state=vic&postcode=3000&sort=city,asc&sort=state,desc&sort=category=extra%20large";
+        String expected = "category=large&city=melbourne&state=vic&postcode=3000&sort=city,desc";
+        QueryStringHelper helper = new QueryStringHelper();
+
+        String result = helper.fieldSorterAsc(query).apply("city");
+        assertThat(result).isEqualTo(expected);
+    }
+
+    /**
+     * The current query string has 1 sort field. The new sort field is 'city' which already exists with an implicit
+     * direction 'asc' as determined by using the trailing 'Asc' variant of {@code fieldSorterAsc}.
+     * In this case the existing 'city' direction should be toggled to its opposite 'desc' given its current default
+     * implicit direction is 'asc'.
+     */
+    @Test
+    public void fieldSorterAsc_OneSortField_SameFieldFound_ImplicitDirection() {
+        String query = "city=melbourne&state=vic&postcode=3000&sort=city";
+        String expected = "city=melbourne&state=vic&postcode=3000&sort=city,desc";
+        QueryStringHelper helper = new QueryStringHelper();
+
+        String result = helper.fieldSorterAsc(query).apply("city");
+        assertThat(result).isEqualTo(expected);
+    }
+
+    /**
+     * The current query string has many sort fields. The new sort field is 'city' which already exists.
+     * In this case the existing 'city' direction should be toggled to its opposite 'desc' with all other sort fields
+     * removed. Since 'city' has no explicit direction, its implicit direction is determined by using the trailing 'Asc'
+     * in {@code fieldSorterAsc} which is how it knows to toggle it to its opposite direction 'desc'.
+     */
+    @Test
+    public void fieldSorterAsc_ManySortFields_FieldFound_ImplicitDirection() {
+        String query = "category=large&city=melbourne&state=vic&postcode=3000&sort=city&sort=state,desc&sort=category=extra%20large";
+        String expected = "category=large&city=melbourne&state=vic&postcode=3000&sort=city,desc";
+        QueryStringHelper helper = new QueryStringHelper();
+
+        String result = helper.fieldSorterAsc(query).apply("city");
+        assertThat(result).isEqualTo(expected);
+    }
+
+    /**
+     * When the query string is null, the new query string should be {@code sort='field,defaultDirection'} where field
+     * is 'country' and defaultDirection is determined by fieldSorterDesc (eg the 'Desc' part).
      */
     @Test
     public void fieldSorterDesc_QueryStringIsNull_ReturnsFieldWithDefaultDirection() {
@@ -926,9 +1038,8 @@ public class SpringHelperTest {
     }
 
     /**
-     * When the query string is empty, the new query string should be
-     * {@code sort='field,defaultDirection'} where field is 'country' and defaultDirection
-     * is determined by fieldSorterDesc (eg the 'Desc' part).
+     * When the query string is empty, the new query string should be {@code sort='field,defaultDirection'} where
+     * field is 'country' and defaultDirection is determined by fieldSorterDesc (eg the 'Desc' part).
      */
     @Test
     public void fieldSorterDesc_QueryStringIsEmpty_ReturnsFieldWithDefaultDirection() {
@@ -941,47 +1052,93 @@ public class SpringHelperTest {
     }
 
     /**
-     * fieldSorterDesc means 'Desc' is the default sort direction to use when the field has no direction.
-     * <p>
-     * Since 'city' has no direction, is its implicit direction is 'desc' resulting in 'asc' after the toggle.
+     * The current query string has only 1 sort field 'sort=city,asc'. The new sort field is 'location' which
+     * does not exist. In this case all existing sort keys should be removed with 'location' being the only sort key
+     * with its direction 'desc' determined by the trailing 'Desc' in {@code fieldSorterDesc}.
      */
     @Test
-    public void fieldSorterDesc_ImplicitSortDirection() {
-        String query = "city=melbourne&state=vic&postcode=3000&sort=city&sort=postcode";
-        String expected = "city=melbourne&state=vic&postcode=3000&sort=city,asc&sort=postcode";
-        QueryStringHelper helper = new QueryStringHelper();
-
-        String result = helper.fieldSorterDesc(query).apply("city");
-        assertThat(result).isEqualTo(expected);
-    }
-
-    /**
-     * fieldSorterDesc means 'Desc' is the default sort direction to use when the field has no direction.
-     * <p>
-     * However in this case, 'city' already has an explicit direction 'desc' so the toggle transitions it to 'asc'.
-     */
-    @Test
-    public void fieldSorterDesc_ExplicitSortDirection() {
-        String query = "city=melbourne&state=vic&postcode=3000&sort=city,desc&sort=postcode";
-        String expected = "city=melbourne&state=vic&postcode=3000&sort=city,asc&sort=postcode";
-        QueryStringHelper helper = new QueryStringHelper();
-
-        String result = helper.fieldSorterDesc(query).apply("city");
-        assertThat(result).isEqualTo(expected);
-    }
-
-    /**
-     * 'location' does not exist in the query string, therefore all existing 'sort' keys are removed with
-     * the new key 'sort=location,defaultDirection' added to the end. 'defaultDirection' is determined by
-     * the fieldSorterDesc (eg the 'Desc' at the end).
-     */
-    @Test
-    public void fieldSorterDesc_FieldDoesNotExist_ImplicitSortDirection() {
-        String query = "city=melbourne&state=vic&postcode=3000&sort=city,desc&sort=postcode";
+    public void fieldSorterDesc_OneSortField_FieldNotFound() {
+        String query = "city=melbourne&state=vic&postcode=3000&sort=city,asc";
         String expected = "city=melbourne&state=vic&postcode=3000&sort=location,desc";
         QueryStringHelper helper = new QueryStringHelper();
 
         String result = helper.fieldSorterDesc(query).apply("location");
+        assertThat(result).isEqualTo(expected);
+    }
+
+    /**
+     * The current query string has many sort fields. The new sort field is 'location' which
+     * does not exist. In this case all existing sort keys should be removed with 'location' being the only sort key
+     * with its direction 'desc' determined by the trailing 'Desc' in {@code fieldSorterDesc}.
+     */
+    @Test
+    public void fieldSorterDesc_ManySortFields_FieldNotFound() {
+        String query = "category=large&city=melbourne&state=vic&postcode=3000&sort=city,asc&sort=state,desc&sort=category=extra%20large";
+        String expected = "category=large&city=melbourne&state=vic&postcode=3000&sort=location,desc";
+        QueryStringHelper helper = new QueryStringHelper();
+
+        String result = helper.fieldSorterDesc(query).apply("location");
+        assertThat(result).isEqualTo(expected);
+    }
+
+    /**
+     * The current query string has 1 sort field. The new sort field is 'city' which already exists with an explicit
+     * direction 'desc'. In this case the existing 'city' direction should be toggled to its opposite 'asc'.
+     */
+    @Test
+    public void fieldSorterDesc_OneSortField_SameFieldFound_ExplicitDirection() {
+        String query = "city=melbourne&state=vic&postcode=3000&sort=city,desc";
+        String expected = "city=melbourne&state=vic&postcode=3000&sort=city,asc";
+        QueryStringHelper helper = new QueryStringHelper();
+
+        String result = helper.fieldSorterDesc(query).apply("city");
+        assertThat(result).isEqualTo(expected);
+    }
+
+    /**
+     * The current query string has many sort fields. The new sort field is 'city' which already exists.
+     * In this case the existing 'city' direction should be toggled to its opposite 'asc' with all other sort fields
+     * removed.
+     */
+    @Test
+    public void fieldSorterDesc_ManySortFields_FieldFound_ExplicitDirection() {
+        String query = "category=large&city=melbourne&state=vic&postcode=3000&sort=city,desc&sort=state,desc&sort=category=extra%20large";
+        String expected = "category=large&city=melbourne&state=vic&postcode=3000&sort=city,asc";
+        QueryStringHelper helper = new QueryStringHelper();
+
+        String result = helper.fieldSorterDesc(query).apply("city");
+        assertThat(result).isEqualTo(expected);
+    }
+
+    /**
+     * The current query string has 1 sort field. The new sort field is 'city' which already exists with an implicit
+     * direction 'desc' as determined by using the trailing 'Desc' variant of {@code fieldSorterDesc}.
+     * In this case the existing 'city' direction should be toggled to its opposite 'asc' given its current default
+     * implicit direction is 'desc'.
+     */
+    @Test
+    public void fieldSorterDesc_OneSortField_SameFieldFound_ImplicitDirection() {
+        String query = "city=melbourne&state=vic&postcode=3000&sort=city";
+        String expected = "city=melbourne&state=vic&postcode=3000&sort=city,asc";
+        QueryStringHelper helper = new QueryStringHelper();
+
+        String result = helper.fieldSorterDesc(query).apply("city");
+        assertThat(result).isEqualTo(expected);
+    }
+
+    /**
+     * The current query string has many sort fields. The new sort field is 'city' which already exists.
+     * In this case the existing 'city' direction should be toggled to its opposite 'asc' with all other sort fields
+     * removed. Since 'city' has no explicit direction, its implicit direction is determined by using the trailing 'Desc'
+     * in {@code fieldSorterDesc} which is how it knows to toggle it to its opposite direction 'asc'.
+     */
+    @Test
+    public void fieldSorterDesc_ManySortFields_FieldFound_ImplicitDirection() {
+        String query = "category=large&city=melbourne&state=vic&postcode=3000&sort=city&sort=state,desc&sort=category=extra%20large";
+        String expected = "category=large&city=melbourne&state=vic&postcode=3000&sort=city,asc";
+        QueryStringHelper helper = new QueryStringHelper();
+
+        String result = helper.fieldSorterDesc(query).apply("city");
         assertThat(result).isEqualTo(expected);
     }
 
