@@ -9,13 +9,11 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
- * A single {@code QueryString} instance is guaranteed to be in a valid state and can only have 1 operation performed.
- *
- * <p>All methods return the modified query string rather than return an intermediate state. {@code QueryString} acts
- * as the private implementation to the publicly available methods exposed to thymeleaf in {@code QueryStringHelper}.
- * </p>
+ * {@code QueryString} acts as the private implementation to the publicly available methods exposed to
+ * thymeleaf in {@code QueryStringHelper}.
+ * All methods return the modified query string rather than return an intermediate state.
  */
-public class QueryString {
+public final class QueryString {
 
     // The unescaped query string
     private String originalQueryString;
@@ -34,24 +32,14 @@ public class QueryString {
     }
 
     /**
-     * Constructs a valid {@code QueryString} instance otherwise throws an {@code IllegalArgumentException}.
+     * Constructs a {@code QueryString} instance.
      *
-     * @param queryString The query string with at least 1 key=value pair.
+     * @param queryString The query string. If {@code null} sets the internal instance to empty.
      * @param uris        Handles escaping/unescaping the string
      * @return A valid instance
      */
     public static QueryString of(String queryString, Uris uris) {
-        // unescape every percent-encoded (%HH) sequences present in input to avoid re escaping.
         return new QueryString(queryString, uris);
-    }
-
-    /**
-     * Validate initial query string prior to constructing instance.
-     */
-    private static boolean isValidPair(String pair) {
-        String[] tokens = pair.split("=");
-        // Need to handle edge case where if you split '=value', index 0 is an empty string.
-        return tokens.length == 2 && !tokens[0].isEmpty();
     }
 
     /**
@@ -144,11 +132,13 @@ public class QueryString {
      * <ol>
      * <li>Accepts a map of instructions - {@code {sort:{0:'stars,asc', 1:'address,desc', 2: 'country,asc'}}}</li>
      * <li>Convert into a list of {@code StateChangeInstruction}s for easier handling.
+     * <blockquote>
      * <pre>
      *         [{key='sort', relativeIndex=0, newValue='stars,asc'},
      *          {key='sort', relativeIndex=1, newValue='address,desc'},
      *          {key='sort', relativeIndex=2, newValue='country,asc'}]
      *     </pre>
+     * </blockquote>
      * </li>
      * <li>{@link #applyStateChangeInstructions(List)} performs the actual replacements and returns the new query string</li>
      * </ol>
@@ -241,6 +231,7 @@ public class QueryString {
      * Removes the nth relative index of the given key. Example of relative index is below where you simply visualise
      * a key as having all its values contained in an array and providing the corresponding index.
      *
+     * <blockquote>
      * <pre>
      *     a=100&b=200&a=300
      *
@@ -249,6 +240,7 @@ public class QueryString {
      *
      *     removeNth('a', 1) => a=100&b=200
      * </pre>
+     * </blockquote>
      *
      * @param key      The target key.
      * @param nthIndex The relative index to remove.
@@ -268,6 +260,7 @@ public class QueryString {
      * Similar to {@link #removeNth(String, int)}, except multiple values can be removed for a matching key through
      * providing many relative indexes while maintaining their ordering in the original query string.
      *
+     * <blockquote>
      * <pre>
      *     a=100&b=200&a=300&a=500
      *
@@ -276,6 +269,7 @@ public class QueryString {
      *
      *     removeNth('a', [0, 2]) => b=200&a=300
      * </pre>
+     * </blockquote>
      *
      * @param key             The target key.
      * @param relativeIndexes The relative indexes to remove.
@@ -291,13 +285,14 @@ public class QueryString {
      * relative indexes list.
      *
      * <p>For example, consider the below state for key2 where the consumer will delete the supplied value.</p>
-     *
+     * <blockquote>
      * <pre>
      *              0   1   2   (relative indexes)
      *     {key2: [aa, bb, cc]}
      *
      *     applyToKeyValues('key2', [1, 2], consumer...) => results in bb and cc being marked for deletion.
      * </pre>
+     * </blockquote>
      *
      * @param key             The target key.
      * @param relativeIndexes Which indexes to apply the consumer to.
@@ -336,8 +331,6 @@ public class QueryString {
      *
      * <p>To decrement, the {@code value} is to be negative.</p>
      *
-     * <p>
-     *
      * <p>{@code relativeIndexes} are provided for flexibility to update more than 1 value, however if the
      * {@code page} is being incremented for example, the list will contain 0 which implies
      * 'only update the first occurrence of the page value'</p>
@@ -365,12 +358,13 @@ public class QueryString {
 
     /**
      * Removes the target key if its value is equal to the matching value. The equality is case insensitive.
-     *
+     * <blockquote>
      * <pre>
      *     a=500&b=700&a=700
      *
      *     removeKeyMatchingValue('a', '700') => a=500&b=700
      * </pre>
+     * </blockquote>
      *
      * @param key        The target key to delete if the value matches.
      * @param valueMatch The value to match which triggers deletion.
@@ -395,12 +389,13 @@ public class QueryString {
     /**
      * Similar to {@link #removeKeyMatchingValue(String, String)} except ALL keys are deleted if they have
      * a matching value.
-     *
+     * <blockquote>
      * <pre>
      *     a=500&b=700&a=700
      *
      *     removeKeyMatchingValue('700') => a=500
      * </pre>
+     * </blockquote>
      *
      * @param valueMatch The value to match triggering deletion.
      * @return The new query string or an empty string if the original query string is null or empty.
@@ -418,12 +413,13 @@ public class QueryString {
 
     /**
      * Gets the value associated with the first occurrence of the given key.
-     *
+     * <blockquote>
      * <pre>
      *     a=500&b=600&a=700
      *
      *     getFirstValue('a') => 500
      * </pre>
+     * </blockquote>
      *
      * @param key The target key.
      * @return The associated value if found otherwise null.
@@ -441,12 +437,13 @@ public class QueryString {
 
     /**
      * Gets all value associated with the the given key.
-     *
+     * <blockquote>
      * <pre>
      *     a=500&b=600&a=700
      *
      *     getFirstValue('a') => [500, 700]
      * </pre>
+     * </blockquote>
      *
      * @param key The target key.
      * @return The associated values if found otherwise an empty list.
@@ -464,11 +461,12 @@ public class QueryString {
 
     /**
      * Adds the given key and value to the end of the query string.
-     *
+     * <blockquote>
      * <pre>
      *     a=500&b=600
      *     add('c', '700') => a=500&b=600&c=700
      * </pre>
+     * </blockquote>
      *
      * <p>Note: If the key already exists with the given value it is ignored.</p>
      *
@@ -545,7 +543,7 @@ public class QueryString {
     }
 
     /**
-     * By spring convention uses the key {@code 'sort'} to locate the supplied {@code sortField}.
+     * Uses the spring convention of the {@code 'sort'} key to locate the supplied {@code sortField}.
      * If the {@code sortField} is found then new sort direction is changed to the result of applying
      * the {@code sortDirectionMapper} function.
      *
@@ -593,9 +591,10 @@ public class QueryString {
     }
 
     /**
-     * Contains the result of casting a dynamic untyped map entry produced by a SpEL expression enabling simpler
-     * processing. The below example would create 3 {@code StateChangeInstruction}s for each sort field.
+     * Contains the result of the map entry produced by a SpEL expression enabling simpler processing given its
+     * clear what every field is. The below example would create 3 {@code StateChangeInstruction}s for each sort field.
      *
+     * <blockquote>
      * <pre>
      *     This:
      *     {sort: {0: 'stars,asc', 1: 'address,desc', 2: 'country,asc'}}
@@ -605,6 +604,7 @@ public class QueryString {
      *      {key='sort', relativeIndex=1, newValue='address,desc'},
      *      {key='sort', relativeIndex=2, newValue='country,asc'}]
      * </pre>
+     * </blockquote>
      */
     private static class StateChangeInstruction {
         private String key;
@@ -631,10 +631,8 @@ public class QueryString {
     /**
      * The {@code originalQueryString} string is transformed into a state map for easier manipulation across all operations.
      * The value of the state map is of type {@code KeyValueIndex} which tracks a key/value pairs index position in
-     * the overall {@code originalQueryString} string. This ensures the reconstructed query string maintains
+     * the overall {@code originalQueryString}. This ensures the reconstructed query string maintains
      * its original ordering.
-     * <br>
-     * <br>
      *
      * <p>Lastly, the value type {@code KeyValueIndex} is contained within a list which naturally tracks relative key
      * ordering. In the context of the example below, its possible to perform an update that replaces the second
@@ -642,11 +640,10 @@ public class QueryString {
      *
      * <p>{@code stateMap["sort"].relativeIndex(1).update("address")}</p>
      *
-     * <br>
-     *
      * <p>This example {@code originalQueryString} string is transformed into the following map.
      * {@code suburb=Melbourne&postcode=3000&page=0&sort=stars,desc&country=AU&sort=name}</p>
      *
+     * <blockquote>
      * <pre>
      * country = [4 -> country=AU]
      * postcode = [1 -> postcode=3000]
@@ -654,6 +651,7 @@ public class QueryString {
      * sort = [3 -> sort=stars,desc, 5 -> sort=name]
      * page = [2 -> page=0]
      * </pre>
+     * </blockquote>
      *
      * <p>You can read {@code sort = [3 -> sort=stars,desc, 5 -> sort=name]} as saying</p>
      * <ul>

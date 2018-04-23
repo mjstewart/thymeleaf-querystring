@@ -50,28 +50,29 @@
                     <target>${maven.compile.target}</target>
                 </configuration>
             </plugin>
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-javadoc-plugin</artifactId>-->
-                <!--<version>3.0.0</version>-->
-                <!--<configuration>-->
-                    <!--&lt;!&ndash;<overview>${basedir}/src/main/javadoc/overview.html</overview>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<javadocDirectory>${basedir}/src/main/javadoc</javadocDirectory>&ndash;&gt;-->
-                    <!--<outputDirectory>${project.build.directory}/apidocs</outputDirectory>-->
-                    <!--&lt;!&ndash;<sourceFileIncludes>&ndash;&gt;-->
-                        <!--&lt;!&ndash;<include>QueryStringHelper.java</include>&ndash;&gt;-->
-                    <!--&lt;!&ndash;</sourceFileIncludes>&ndash;&gt;-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <!--<overview>${basedir}/src/main/javadoc/overview.html</overview>-->
+                    <!--<javadocDirectory>${basedir}/src/main/javadoc</javadocDirectory>-->
+                    <outputDirectory>${project.build.directory}/apidocs</outputDirectory>
+                    <additionalparam>-Xdoclint:none</additionalparam>
+                    <!--<sourceFileIncludes>-->
+                        <!--<include>QueryStringHelper.java</include>-->
+                    <!--</sourceFileIncludes>-->
 
-                <!--</configuration>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>jar</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <packaging>jar</packaging>

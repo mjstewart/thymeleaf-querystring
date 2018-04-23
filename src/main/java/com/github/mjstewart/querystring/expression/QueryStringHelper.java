@@ -11,30 +11,27 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * This class provides the public methods exposed to the thymeleaf template caller.
+ * Provides public methods exposed to the thymeleaf template caller.
  */
 public final class QueryStringHelper {
 
     private final Uris uris = new Uris();
 
     /**
-     * Replaces only the first occurrence of 'key' with 'value' while maintaining the query strings original order.
+     * Replaces only the first occurrence of {@code key} with {@code value} while maintaining the query strings
+     * original order.
      *
-     * <h3>Thymeleaf usage</h3>
+     * <p><b>Thymeleaf usage</b></p>
      *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "suburb=west&region=AU&postcode=494849"
      *
      *     th:with="newQueryString=${#qs.replaceFirst(#request.getQueryString(), 'region', 'Australia')}"
+     *     => newQueryString = "suburb=west&region=Australia&postcode=494849"
      * </pre>
+     * </blockquote>
      *
-     * <h3>Result</h3>
-     *
-     * <pre>
-     *     newQueryString = "suburb=west&region=Australia&postcode=494849"
-     * </pre>
-     *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
@@ -51,22 +48,26 @@ public final class QueryStringHelper {
      * Replaces the nth key with the supplied value based on a keys relative index while maintaining the query strings
      * original order.
      *
-     * <h3>Explanation</h3>
-     * <p>Lets examine the {@code region} key in the below example. {@code region} can be thought of as having an
-     * array of 3 values. {@code region = ['AU', 'Australia', 'AUS']}. {@code region[1], region[2]} are replaced
-     * with the new values of 'Auckland' and 'AUKL' respectively while while {@code region[0]} remains unchanged.
-     * </p>
-     *
-     * <h3>Thymeleaf usage</h3>
-     *
+     * <p><b>Thymeleaf usage</b></p>
+     * <p>
+     * {@code region} can be thought of as having an array of 3 values.
+     * <blockquote>
      * <pre>
-     *     #request.getQueryString() = "region=AU&suburb=west&region=Australia&postcode=494849&region=AUS"
+     *         region = ['AU', 'Australia', 'AUS']
+     *     </pre>
+     * </blockquote>
+     * {@code region[1], region[2]} are replaced with the new values of 'Auckland' and 'AUKL' respectively
+     * while while {@code region[0]} remains unchanged.
+     *
+     * <blockquote>
+     * <pre>
+     *     {@code #request.getQueryString() = "region=AU&suburb=west&region=Australia&postcode=494849&region=AUS"}
      *
      *     th:with="newQueryString=${#qs.replaceNth(#request.getQueryString(), {region: { 1: 'Auckland', 2: 'AUKL' }})}"
-     *     => newQueryString = "region=AU&suburb=west&region=Auckland&postcode=494849&region=AUKL"
+     *     {@code newQueryString = "region=AU&suburb=west&region=Auckland&postcode=494849&region=AUKL"}
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string. The syntax for the
      * {@code stateChangeInstructions} Map must be exactly as the example shows, otherwise there will be casting errors.</p>
      *
@@ -80,34 +81,40 @@ public final class QueryStringHelper {
 
     /**
      * Replaces the first N values associated with the {@code key} while maintaining the query strings original order.
-     * Consider the below example.
+     * <p>Consider the query string {@code "name=john&age=30&name=joseph&month=march&name=smith"}</p>
      *
-     * <h3>Explanation</h3>
-     *
-     * <p>The key {@code 'name'} can be visualised as an array containing 3 values. {@code name = ['john', 'joseph', 'smith']}.</p>
-     * <p>The example shows 2 values being provided {@code ['mary', 'rose']} which replace the existing 2 values in
+     * <p>The key {@code 'name'} can be visualised as an array containing 3 values.
+     * <blockquote>
+     * <pre>
+     *         name = ['john', 'joseph', 'smith']
+     *     </pre>
+     * </blockquote>
+     * <p>
+     * The thymeleaf usage example shows 2 values being provided {@code ['mary', 'rose']} which replace the existing 2 values in
      * the corresponding index positions while leaving the last index of {@code 'smith'} unchanged.
      * The transformation is equivalent to</p>
      *
+     * <blockquote>
      * <pre>
      *     name = ['john', 'joseph', 'smith']
      *     name[0] = 'mary'
      *     name[1] = 'rose'
      * </pre>
+     * </blockquote>
      *
      * <p>If 1 value was provided, only the first value would be replaced, whereas if 100 values were provided then
      * all 3 would be replaced by the first 3 corresponding replacement values.</p>
      *
-     * <h3>Thymeleaf usage</h3>
-     *
+     * <p><b>Thymeleaf usage</b></p>
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "name=john&age=30&name=joseph&month=march&name=smith"
      *
      *     th:with="newQueryString=${#qs.replaceN(#request.getQueryString(), 'name', {'mary', 'rose'})}"
      *     => newQueryString = "name=mary&age=30&name=rose&month=march&name=smith"
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
@@ -122,33 +129,30 @@ public final class QueryStringHelper {
 
     /**
      * Removes the first occurrence of the supplied key while maintaining the query strings original order.
-     * If there are no duplicate keys, the entire key will be removed.
      *
-     * <h3>Explanation</h3>
+     * <h5>Thymeleaf usage</h5>
+     * {@code #request.getQueryString() = "name=john&age=30&name=joseph&month=march&name=smith"}
+     * <p></p>
      *
-     * <ol>
-     * <li>When every key in the query string is unique (only appears once), this method simply removes the key
-     * as shown in the below example 2.
-     * </li>
-     * <li>
-     * When there are duplicate keys such as {@code 'name'} containing 3 values {@code name = ['john', 'joseph', 'smith']}.
-     * The effect of calling {@code removeFirst} is simply removing name[0].
-     * </li>
-     * </ol>
-     *
-     * <h3>Thymeleaf usage</h3>
-     *
+     * <h6>All keys are unique</h6>
+     * If all keys are unique, this method simply removes the key
+     * <blockquote>
      * <pre>
-     *     #request.getQueryString() = "name=john&age=30&name=joseph&month=march&name=smith"
-     *
-     *     Duplicate 1. th:with="newQueryString=${#qs.removeFirst(#request.getQueryString(), 'name')}"
-     *     => newQueryString = "age=30&name=joseph&month=march&name=smith" (other names still remain)
-     *
-     *     Unique 2. th:with="newQueryString=${#qs.removeFirst(#request.getQueryString(), 'age')}"
+     *     th:with="newQueryString=${#qs.removeFirst(#request.getQueryString(), 'age')}"
      *     => newQueryString = "name=john&name=joseph&month=march&name=smith" (age completely gone).
-     * </pre>
+     *  </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
+     * <h6>Duplicate keys</h6>
+     * When there are duplicate keys such as {@code 'name'} containing 3 values {@code ['john', 'joseph', 'smith']}.
+     * The effect of calling {@code removeFirst} is simply removing {@code name[0]}.
+     * <blockquote>
+     * <pre>
+     *     th:with="newQueryString=${#qs.removeFirst(#request.getQueryString(), 'name')}"
+     *     => newQueryString = "age=30&name=joseph&month=march&name=smith" (other names still remain)
+     *  </pre>
+     * </blockquote>
+     *
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
@@ -165,18 +169,18 @@ public final class QueryStringHelper {
      * query strings original order.
      *
      * <p>The example shows removing keys {@code ['region', 'postcode']} with the resulting query string
-     * including only the other 2 keys of {@code 'suburb' and 'language'} in the order they originally appeared.</p>
+     * containing the remaining keys {@code 'suburb' and 'language'} in the order they originally appeared.</p>
      *
-     * <h3>Thymeleaf usage</h3>
-     *
+     * <p><b>Thymeleaf usage</b></p>
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "region=AU&suburb=west&region=Australia&postcode=494849&region=AUS&language=en"
      *
      *     th:with="newQueryString=${#qs.removeAll(#request.getQueryString(), {'region', 'postcode'})}"
      *     => newQueryString = "suburb=west&language=en"
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.
      * The syntax for the list of {@code keys} must be exactly as the example shows, otherwise
      * there will be casting errors</p>
@@ -192,11 +196,13 @@ public final class QueryStringHelper {
     /**
      * The same concept as {@code dropN} in functional languages where the first n occurrences of the target key are removed
      * while maintaining the query strings original order.
+     * <p></p>
      *
-     * <h3>Explanation</h3>
-     * Using the example, the key {@code 'name'} can be visualised as an array containing 3 values.
-     * {@code name = ['john', 'joseph', 'smith']}. {@code removeN} will simply delete the first n values as below.
+     * <p>Using the thymeleaf usage example, the key {@code 'name'} can be visualised as an array containing 3 values.
+     * {@code name = ['john', 'joseph', 'smith']}.</p>
+     * <p>{@code removeN} will simply delete the first n values as shown below.</p>
      *
+     * <blockquote>
      * <pre>
      *     n=-1 -> ['john', 'joseph', 'smith'] (invalid n has no effect).
      *     n=0 -> ['john', 'joseph', 'smith'] (dropping nothing has no effect).
@@ -205,53 +211,56 @@ public final class QueryStringHelper {
      *     n=3 -> []
      *     n=100 -> []
      * </pre>
+     * </blockquote>
      *
-     * <h3>Thymeleaf usage</h3>
+     * <p><b>Thymeleaf usage</b></p>
      * <p>The example removes the {@code 'name'} keys first 2 values with {@code 'smith'} still remaining.</p>
+     *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "name=john&age=30&name=joseph&month=march&name=smith"
      *
      *     th:with="newQueryString=${#qs.removeN(#request.getQueryString(), 'name', 2)}"
      *     => newQueryString = "age=30&month=march&name=smith"
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
      * @param queryString The current query string.
-     * @param key         The keys to remove.
-     * @param n           The keys to remove.
+     * @param key         The key to drop {@code n} values from.
+     * @param n           How many keys to remove.
      * @return The new query string.
      */
     public String removeN(String queryString, String key, int n) {
         return QueryString.of(queryString, uris).removeN(key, n);
     }
 
-    // TODO UPTO HERE, remember to test example code
-
-
     /**
      * Removes the nth relative index of the given key while maintaining the query strings original order.
      * The concept of relative index is outlined below using the {@code 'name'} key as the target.
      *
+     * <blockquote>
      * <pre>
      *     "name=john&age=30&name=joseph&month=march&name=smith"
      *
-     *               0         1         2      (relative indexes)
+     *               0        1         2      (relative indexes)
      *     name = ['john', 'joseph', 'smith']
      * </pre>
+     * </blockquote>
      *
-     * <h3>Thymeleaf usage</h3>
+     * <p><b>Thymeleaf usage</b></p>
      * <p>The example demonstrates removing the middle name at index 1.</p>
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "name=john&age=30&name=joseph&month=march&name=smith"
      *
      *     th:with="newQueryString=${#qs.removeNth(#request.getQueryString(), 'name', 1)}"
      *     => newQueryString = "name=john&age=30&month=march&name=smith"
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
@@ -269,23 +278,25 @@ public final class QueryStringHelper {
      * to remove multiple relative indexes at the same time. The below example shows how its possible to remove
      * relative indexes 0 and 2 while keeping the middle name {@code 'joseph'}.
      *
+     * <blockquote>
      * <pre>
      *     "name=john&age=30&name=joseph&month=march&name=smith"
      *
-     *               0         1         2      (relative indexes)
+     *               0        1         2      (relative indexes)
      *     name = ['john', 'joseph', 'smith']
      * </pre>
+     * </blockquote>
      *
-     * <h3>Thymeleaf usage</h3>
-     *
+     * <p><b>Thymeleaf usage</b></p>
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "name=john&age=30&name=joseph&month=march&name=smith"
      *
      *     th:with="newQueryString=${#qs.removeManyNth(#request.getQueryString(), 'name', {0, 2})}"
      *     => "age=30&name=joseph&month=march"
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string. The syntax for the
      * list of {@code relativeIndexes} must be exactly as the example shows, otherwise there will be casting errors.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
@@ -304,22 +315,22 @@ public final class QueryStringHelper {
      * The example shows that for the target key {@code 'region'}, only remove the key if the value is equal
      * to 'australia'. Note the case insensitivity.
      *
-     * <h3>Thymeleaf usage</h3>
-     *
+     * <p><b>Thymeleaf usage</b></p>
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "region=AU&region=south&region=AUSTRALIA&sort=country,asc"
      *
      *     th:with="newQueryString=${#qs.removeKeyMatchingValue(#request.getQueryString(), 'region', 'australia')}"
      *     => newQueryString = "region=AU&region=south&sort=country,asc"
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
      * @param queryString The current query string.
      * @param key         The target key.
-     * @param valueMatch  The value to match which triggers deletion.
+     * @param valueMatch  The case insensitive value to match which triggers deletion.
      * @return The new query string.
      */
     public String removeKeyMatchingValue(String queryString, String key, String valueMatch) {
@@ -330,21 +341,22 @@ public final class QueryStringHelper {
      * Similar to {@link #removeKeyMatchingValue(String, String, String)} except no target key is
      * provided causing all keys to be eligible for removal if the value matches. Case insensitive equality applies.
      *
-     * <h3>Thymeleaf usage</h3>
+     * <p><b>Thymeleaf usage</b></p>
      * <p>The example shows any key matching the value 'australia' (case insensitive) will be removed.</p>
+     * <blockquote>
      * <pre>
-     *     #request.getQueryString() = "region=AU&region=south&region=AUSTRALIA&sort=country,asc&locale=australia"
+     *     {@code #request.getQueryString() = "region=AU&region=south&region=AUSTRALIA&sort=country,asc&locale=australia"}
      *
      *     th:with="newQueryString=${#qs.removeAnyKeyMatchingValue(#request.getQueryString(), 'australia')}"
-     *     => newQueryString = "region=AU&region=south&sort=country,asc"
+     *     {@code => newQueryString = "region=AU&region=south&sort=country,asc"}
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
      * @param queryString The current query string.
-     * @param valueMatch  The value to match which triggers deletion.
+     * @param valueMatch  The case insensitive value to match which triggers deletion.
      * @return The new query string.
      */
     public String removeAnyKeyMatchingValue(String queryString, String valueMatch) {
@@ -354,36 +366,44 @@ public final class QueryStringHelper {
     /**
      * Gets the value associated with the first occurrence of the given key.
      *
-     * <ol>
-     * <li>If all keys are unique, the single value associated to the key is returned - example 2.</li>
-     * <li>If there are duplicate keys such as {@code 'name'} with values {@code ['john', 'joseph', 'smith']}
-     * then {@code getFirstValue} returns {@code name[0]} as shown in example 1.
-     * </li>
-     * <li>If no key is found, null is returned.</li>
-     * </ol>
+     * <h5>Thymeleaf usage</h5>
+     * {@code #request.getQueryString() = "name=john&age=30&name=joseph&month=march&name=smith"}
+     * <p></p>
      *
-     * <h3>Thymeleaf usage</h3>
-     *
+     * <h6>All keys are unique</h6>
+     * If all keys are unique, the single value associated to the key is returned
+     * <blockquote>
      * <pre>
-     *     #request.getQueryString() = "name=john&age=30&name=joseph&month=march&name=smith"
-     *
-     *     Duplicate 1. th:with="newQueryString=${#qs.getFirstValue(#request.getQueryString(), 'name')}"
-     *     => "john"
-     *
-     *     Unique: 2. th:with="newQueryString=${#qs.getFirstValue(#request.getQueryString(), 'age')}"
+     *     th:with="newQueryString=${#qs.getFirstValue(#request.getQueryString(), 'age')}"
      *     => "30"
+     *     </pre>
+     * </blockquote>
      *
-     *     Not found: 3. th:with="newQueryString=${#qs.getFirstValue(#request.getQueryString(), 'city')}"
+     * <h6>Duplicate keys</h6>
+     * If there are duplicate keys such as {@code 'name'} with values {@code ['john', 'joseph', 'smith']}
+     * then {@code getFirstValue} returns {@code name[0]}
+     * <blockquote>
+     * <pre>
+     *     th:with="newQueryString=${#qs.getFirstValue(#request.getQueryString(), 'name')}"
+     *     => "john"
+     *     </pre>
+     * </blockquote>
+     *
+     * <h6>Key not found</h6>
+     * If no key is found, null is returned.
+     * <blockquote>
+     * <pre>
+     *     th:with="newQueryString=${#qs.getFirstValue(#request.getQueryString(), 'city')}"
      *     => null
-     * </pre>
+     *     </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
      * @param queryString The current query string.
      * @param key         The key to get the value for.
-     * @return The associated value or null if the key does not exist.
+     * @return The associated value or {@code null} if the key does not exist.
      */
     public String getFirstValue(String queryString, String key) {
         return QueryString.of(queryString, uris).getFirstValue(key);
@@ -392,68 +412,94 @@ public final class QueryStringHelper {
     /**
      * Gets all value associated with the the given key.
      *
-     * <ol>
-     * <li>If all keys are unique, the returned list will contain the single value associated to the key - example 2.</li>
-     * <li>If there are duplicate keys such as {@code 'name'} with values {@code ['john', 'joseph', 'smith']}
-     * then {@code getAllValues} returns all 3 values in a list as shown in example 1.
-     * </li>
-     * <li>If no key is found, an empty list is returned.</li>
-     * </ol>
+     * <h5>Thymeleaf usage</h5>
+     * {@code #request.getQueryString() = "name=john&age=30&name=joseph&month=march&name=smith"}
+     * <p></p>
      *
-     * <h3>Thymeleaf usage</h3>
-     *
+     * <h6>All keys are unique</h6>
+     * The returned list will contain the single value associated to the key
+     * <blockquote>
      * <pre>
-     *     #request.getQueryString() = "name=john&age=30&name=joseph&month=march&name=smith"
-     *
-     *     Duplicate 1. th:with="newQueryString=${#qs.getAllValues(#request.getQueryString(), 'name')}"
-     *     => ["john", "joseph", "smith"]
-     *
-     *     Unique: 2. th:with="newQueryString=${#qs.getAllValues(#request.getQueryString(), 'age')}"
+     *     th:with="newQueryString=${#qs.getAllValues(#request.getQueryString(), 'age')}"
      *     => ["30"]
+     * </pre>
+     * </blockquote>
      *
-     *     Not found: 3. th:with="newQueryString=${#qs.getAllValues(#request.getQueryString(), 'city')}"
+     * <h6>Duplicate keys</h6>
+     * If there are duplicate keys such as {@code 'name'} with values {@code ['john', 'joseph', 'smith']},
+     * all 3 values are returned in a list
+     * <blockquote>
+     * <pre>
+     *     th:with="newQueryString=${#qs.getAllValues(#request.getQueryString(), 'name')}"
+     *     => ["john", "joseph", "smith"]
+     * </pre>
+     * </blockquote>
+     *
+     * <h6>Key not found</h6>
+     * If no key is found, an empty list is returned.
+     * <blockquote>
+     * <pre>
+     *    th:with="newQueryString=${#qs.getAllValues(#request.getQueryString(), 'city')}"
      *     => []
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty list.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
      * @param queryString The current query string.
      * @param key         The key to get the values for.
-     * @return The associated value or null if the key does not exist.
+     * @return The associated values or any empty list if the key does not exist.
      */
     public List<String> getAllValues(String queryString, String key) {
         return QueryString.of(queryString, uris).getAllValues(key);
     }
 
     /**
-     * Adds the given key and value to the end of the query string with the value being escaped to form a
-     * valid query string.
+     * Adds the given {@code key} and {@code value} to the end of the query string with the {@code value}
+     * being escaped to form a valid query string.
      *
-     * <ol>
-     * <li>If exactly the same key and value exist, the original query string is returned unmodified.</li>
-     * <li>If same key but different value is added, the new key and value pair is added to the end resulting
-     * in 2 of the same keys but with different values. See Example 2</li>
-     * <li>If the query string is empty or {@code null}, the key and value will be the new query string. See Example 3.</li>
-     * </ol>
+     * <h5>Thymeleaf usage</h5>
+     * {@code #request.getQueryString() = "name=john&age=30"}
+     * <p></p>
      *
-     * <h3>Thymeleaf usage</h3>
-     *
+     * <h6>New key</h6>
+     * A new key and its value is added to the end. Notice how the white space has been escaped.
+     * <blockquote>
      * <pre>
-     *     #request.getQueryString() = "name=john&age=30"
-     *
-     *     1. th:with="newQueryString=${#qs.add(#request.getQueryString(), 'city', 'san francisco')}"
+     *     th:with="newQueryString=${#qs.add(#request.getQueryString(), 'city', 'san francisco')}"
      *     => newQueryString = name=john&age=30&city=san%20francisco
+     * </pre>
+     * </blockquote>
      *
-     *     2. th:with="newQueryString=${#qs.add(#request.getQueryString(), 'name', 'smith')}"
+     * <h6>Key and value exists</h6>
+     * If exactly the same key and value exist, the original query string is returned unmodified.
+     * <blockquote>
+     * <pre>
+     *     th:with="newQueryString=${#qs.add(#request.getQueryString(), 'name', 'john')}"
+     *     => newQueryString = name=john&age=30
+     * </pre>
+     * </blockquote>
+     *
+     * <h6>Same key but different value</h6>
+     * If same key but different value is added, the new key and value pair is added to the end resulting
+     * in 2 of the same keys having different values.
+     * <blockquote>
+     * <pre>
+     *     th:with="newQueryString=${#qs.add(#request.getQueryString(), 'name', 'smith')}"
      *     => newQueryString = name=john&age=30&name=smith
+     * </pre>
+     * </blockquote>
      *
-     *     3. th:with="newQueryString=${#qs.add(null, 'city', 'melbourne')}"
+     * <h6>null or empty query string</h6>
+     * If the query string is {@code null} or empty, the key and value will form the new query string.
+     * <blockquote>
+     * <pre>
+     *     th:with="newQueryString=${#qs.add(null, 'city', 'melbourne')}"
      *     => newQueryString = city=melbourne
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return the new key and value in query string form.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
@@ -468,21 +514,22 @@ public final class QueryStringHelper {
 
     /**
      * Behaves exactly like {@link #add(String, String, String)} except adds many key value pairs
-     * to the end of the query string in the exact order they are provided. If the key/value pair already exist, it is
+     * to the end of the query string in the exact order they are provided. If the key/value pair already exists, it is
      * ignored.
      *
-     * <h3>Thymeleaf usage</h3>
-     * <p>The example shows adding 2 new key/value pairs (city and country) while ignoring {@code name='john'} since
-     * it already exists.
-     * </p>
+     * <h5>Thymeleaf usage</h5>
+     * The example shows adding 2 new key/value pairs ({@code city='san francisco'} and {@code country='US'})
+     * while ignoring {@code name='john'} since it already exists.
+     *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "name=john&age=30"
      *
      *     th:with="newQueryString=${#qs.addAll(#request.getQueryString(), {{'city', 'san francisco'}, {'country', 'US'}, {'name', 'john'}})}"
      *     => name=john&age=30&city=san%20francisco&country=US
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>The syntax for the 2d list of {@code keyValuePairs} must be exactly as the example shows, otherwise
      * there will be casting errors. If the query string is {@code null} or empty, all key value pairs will be
      * joined to form the new query string.</p>
@@ -501,21 +548,22 @@ public final class QueryStringHelper {
      * <p>This method is a useful alternative to executing a replace. Sometimes its not known the exact format of
      * the query string so it is easier to simply remove 1 or many keys followed by adding the new key/value pairs.</p>
      *
-     * <h3>Thymeleaf usage</h3>
+     * <h5>Thymeleaf usage</h5>
      * <p>The example demonstrates removing all occurrences of the 'postcode' and 'sort' keys. The key 'sort' is then
-     * re-added to the end of the query string with a value of 'city,desc'. Using spring as an example, the primary
-     * sort field is defined first followed by secondary sort keys. The example changes the secondary sort key of 'city'
-     * to be the new primary sort field.
+     * re-added to the end of the query string with a value of 'city,desc'. When using spring
+     * {@code PagingAndSortingRepository}, the primary sort field is defined first followed by secondary sort keys.
+     * The example changes the secondary sort key of 'city' to be the new primary sort field.
      * </p>
      *
+     * <blockquote>
      * <pre>
-     *     #request.getQueryString() = "sort=country,asc&sort=city,desc&location=AU&region=north&postcode=4931495"
+     *     {@code #request.getQueryString() = "sort=country,asc&sort=city,desc&location=AU&region=north&postcode=4931495"}
      *
      *     th:with="newQueryString=${#qs.removeAllAndAdd(#request.getQueryString(), {'postcode', 'sort'}, {{'sort', 'city,desc'}})}"
-     *     => location=AU&region=north&sort=city,desc
+     *     {@code => location=AU&region=north&sort=city,desc}
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>The syntax for the list arguments must be exactly as the example shows, otherwise
      * there will be casting errors. If the query string is {@code null} or empty, all new key value pairs will be
      * joined to form the new query string.</p>
@@ -542,21 +590,22 @@ public final class QueryStringHelper {
      * maintaining the original query strings ordering. After the removal, the list of key value pairs are added to
      * the end of the query string.
      *
-     * <h3>Thymeleaf usage</h3>
+     * <h5>Thymeleaf usage</h5>
      * <p>The example shows key {@code 'sort'} having values {@code ['country,asc', 'city,desc']} and key {@code 'region'}
      * with values {@code ['north, 'upper', 'border']}.</p>
      *
      * <p>The removal step has the effect of deleting {@code sort[0]} and {@code region[1], region[2]}. After the removal,
-     * 2 new key value pairs are added to the end of the query string.</p>
+     * 2 new key value pairs ({@code postcode=39481} and {@code locale=AU}) are added to the end of the query string.</p>
      *
+     * <blockquote>
      * <pre>
-     *     #request.getQueryString() = "sort=country,asc&sort=city,desc&location=AU&region=north&region=upper&region=border"
+     *     {@code #request.getQueryString() = "sort=country,asc&sort=city,desc&location=AU&region=north&region=upper&region=border"}
      *
      *     th:with="newQueryString=${#qs.removeNthAndAdd(#request.getQueryString(), {'sort': {0}, 'region': {1, 2}}, {{'postcode', '39481'}, {'locale', 'AU'}})}"
-     *     => newQueryString = sort=city,desc&location=AU&region=north&postcode=39481&locale=AU
+     *     {@code => newQueryString = sort=city,desc&location=AU&region=north&postcode=39481&locale=AU}
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>The syntax for the {@code removeInstructions} and {@code addKeyValuePairs} must be exactly as
      * the example shows, otherwise there will be casting errors. If the query string is {@code null} or empty,
      * all new key value pairs will be joined to form the new query string.</p>
@@ -592,23 +641,25 @@ public final class QueryStringHelper {
     }
 
     /**
-     * Adds the supplied value to a range of numerical key values defined by relative index. Decrementing a value can be
-     * achieved by supplying a negative number. Consider alternative methods such as {@code adjustFirstNumericValueBy}
-     * or {@code incrementPage} if a specific key is being targeted.
+     * Adds the supplied {@code value} to a range of numerical key values identified by relative index.
+     * Decrementing a value can be achieved by supplying a negative number.
+     * Consider alternative methods such as {@code adjustFirstNumericValueBy} or {@code incrementPage} if a specific
+     * key is being targeted.
      *
-     * <h3>Thymeleaf usage</h3>
+     * <h5>Thymeleaf usage</h5>
      * <p>The example shows key {@code 'policy'} having values {@code [10, 20, 30]}. Lets assume we want to add 5 to only
      * the values at index 1 and 2. The result is the last 2 values being incremented by 5 while the first value remains
      * unchanged at 10.</p>
      *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "policy=10&sort=country&policy=20&location=AU&border=north&policy=30"
      *
      *     th:with="newQueryString=${#qs.adjustNumericValueBy(#request.getQueryString(), 'policy', {1, 2}, 5)}"
      *     => newQueryString = policy=10&sort=country&policy=25&location=AU&border=north&policy=35
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>The syntax for the {@code relativeIndexes} must be exactly as the example shows,
      * otherwise there will be casting errors. Supplying a {@code null} or empty {@code queryString} will return an empty string.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
@@ -628,17 +679,19 @@ public final class QueryStringHelper {
      * the first occurrence of the numeric key value. This method is provided for convenience to avoid having to provide
      * the relative index list. To decrement the value, supply a negative number.
      *
-     * <h3>Thymeleaf usage</h3>
-     * <p>The example shows key {@code 'policy'} having values {@code [10, 20, 30]}. Since this method only updates
-     * index 0 (the first value), adding 2 to the current value at index 0 will result in 12 as the new value.</p>
+     * <h5>Thymeleaf usage</h5>
+     * <p>The example shows key {@code 'policy'} having values {@code [10, 20, 30]}. This method only updates
+     * {@code index 0} resulting in the first 'policy' key having the new value 12.</p>
+     *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "policy=10&sort=country&policy=20&location=AU&border=north&policy=30"
      *
      *     th:with="newQueryString=${#qs.adjustFirstNumericValueBy(#request.getQueryString(), 'policy', 2)}"
      *     => newQueryString = policy=12&sort=country&policy=20&location=AU&border=north&policy=30
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
@@ -656,14 +709,20 @@ public final class QueryStringHelper {
      * This method is useful when working with spring {@code PagingAndSortingRepository} which uses
      * the key {@code 'page'} by convention.
      *
-     * <h3>Thymeleaf usage</h3>
+     * <p>Use {@link #incrementPage(String, int)} to provide automatic upper bounds checking to ensure page is not
+     * incremented beyond what the {@code PagingAndSortingRepository} will provide.</p>
      *
+     * <h5>Thymeleaf usage</h5>
+     *
+     * <blockquote>
      * <pre>
-     *     #request.getQueryString() = "city=dallas&country=US&sort=country,desc&page=0"
+     *   #request.getQueryString() = "city=dallas&country=US&sort=country,desc&page=0"
      *
-     *     th:with="newQueryString=${#qs.incrementPage(#request.getQueryString())}"
-     *     => newQueryString = city=dallas&country=US&sort=country,desc&page=1
+     *   th:with="newQueryString=${#qs.incrementPage(#request.getQueryString())}"
+     *   => newQueryString = city=dallas&country=US&sort=country,desc&page=1
      * </pre>
+     * </blockquote>
+     *
      *
      * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.</p>
@@ -680,15 +739,17 @@ public final class QueryStringHelper {
      * {@code maxBound}. This is convenient to use to avoid having to implement additional bounds checking in the
      * template code.
      *
-     * <h3>Thymeleaf Usage</h3>
+     * <h5>Thymeleaf usage</h5>
      * <p>Consider a html table with paging where you would like to prevent the page count from exceeding the total pages
      * available from the {@code PagingAndSortingRepository}. The example assumes {@code customers} is of type
      * {@code Page<Customer>} and is in the {@code Model}. If there are 10 total pages, and the current page is 9
-     * which is the last page, setting {@code maxBound = 9} will prevent the page from being incremented.</p>
+     * representing the last page, setting {@code maxBound = 9} will prevent the page from being incremented.</p>
      *
+     * <blockquote>
      * <pre>
-     *     th:with="newQueryString=${#qs.incrementPage(#request.getQueryString(), customers.getTotalPages() - 1)}"
+     *   th:with="newQueryString=${#qs.incrementPage(#request.getQueryString(), customers.getTotalPages() - 1)}"
      * </pre>
+     * </blockquote>
      *
      * @param queryString The current query string.
      * @param maxBound    Increment current value only if it is below the {@code maxBound}.
@@ -702,20 +763,20 @@ public final class QueryStringHelper {
 
     /**
      * Decrements the value for key {@code 'page'} by 1 providing the value is numeric otherwise there is no effect.
-     * The value is not decremented below 0 which eliminates the need to do lower bound checking within the thymeleaf
+     * The value is not decremented below {@code 0} which eliminates the need to do lower bound checking within the thymeleaf
      * template itself. This method is useful when working with spring {@code PagingAndSortingRepository} which uses
      * the key {@code 'page'} by convention.
      *
-     * <h2>Thymeleaf usage</h2>
-     *
+     * <h5>Thymeleaf usage</h5>
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "city=dallas&country=US&sort=country,desc&page=1"
      *
      *     th:with="newQueryString=${#qs.decrementPage(#request.getQueryString())}"
      *     => newQueryString = city=dallas&country=US&sort=country,desc&page=0
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.</p>
      *
      * @param queryString The current query string.
@@ -750,16 +811,19 @@ public final class QueryStringHelper {
      * This method is useful when working with spring {@code PagingAndSortingRepository} which uses
      * the key {@code 'sort'} by convention
      *
-     * <h3>Thymeleaf usage</h3>
+     * <h5>Thymeleaf usage</h5>
      * <p>The example shows 'country' as not having an explicit sort direction meaning the default direction is
      * determined by the spring repository. Since the {@code setSortDirectionXXX} with trailing 'Asc' is used, 'country'
      * is set to direction 'asc'.</p>
+     *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "city=dallas&country=US&sort=country&page=1"
      *
      *     th:with="newQueryString=${#qs.setSortDirectionAsc(#request.getQueryString(), 'country')}"
      *     => newQueryString = city=dallas&country=US&sort=country,asc&page=1
      * </pre>
+     * </blockquote>
      *
      * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.
@@ -791,30 +855,34 @@ public final class QueryStringHelper {
      * {@code toggleSortDefaultXXX} with trailing 'Asc' or 'Desc'. The trailing direction determines how a sort field
      * with no direction is treated as illustrated in the below examples.
      *
-     * <h3>Thymeleaf usage</h3>
+     * <h5>Thymeleaf usage</h5>
      *
-     * <h4>Implicit sort direction</h4>
+     * <h6>Implicit sort direction</h6>
      * 'country' has no explicit direction implying its default direction is 'asc' since
      * the {@code toggleSortDefaultXXX} trailing 'Asc' method is being used. Since the current direction is 'asc',
      * toggling causes the new direction to be 'desc'.
      *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "city=dallas&country=US&sort=country&page=1"
      *
      *     th:with="newQueryString=${#qs.toggleSortDefaultAsc(#request.getQueryString(), 'country')}"
      *     => newQueryString = city=dallas&country=US&sort=country,desc&page=1
      * </pre>
+     * </blockquote>
      *
-     * <h4>Explicit sort direction</h4>
+     *
+     * <h6>Explicit sort direction</h6>
      * 'country' has an explicit direction of 'desc' resulting in the post toggle direction being 'asc'.
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "city=dallas&country=US&sort=country,desc&page=1"
      *
      *     th:with="newQueryString=${#qs.toggleSortDefaultAsc(#request.getQueryString(), 'country')}"
-     *     => newQueryString = city=dallas&country=US&sort=country,desc&page=1
+     *     => newQueryString = city=dallas&country=US&sort=country,asc&page=1
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
@@ -829,28 +897,33 @@ public final class QueryStringHelper {
     /**
      * Works the same as {@link #toggleSortDefaultAsc(String, String)} except applies the default sort direction 'desc'.
      *
-     * <h3>Thymeleaf usage</h3>
+     * <h5>Thymeleaf usage</h5>
      *
-     * <h4>Implicit sort direction</h4>
+     * <h6>Implicit sort direction</h6>
      * 'country' has no explicit direction implying its default direction is 'desc' since
      * the {@code toggleSortDefaultXXX} trailing 'Desc' method is being used. Since the current direction is 'desc',
      * toggling causes the new direction to be 'asc'.
      *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "city=dallas&country=US&sort=country&page=1"
      *
      *     th:with="newQueryString=${#qs.toggleSortDefaultDesc(#request.getQueryString(), 'country')}"
      *     => newQueryString = city=dallas&country=US&sort=country,asc&page=1
      * </pre>
+     * </blockquote>
      *
-     * <h4>Explicit sort direction</h4>
+     * <h6>Explicit sort direction</h6>
      * 'country' has an explicit direction of 'asc' resulting in the post toggle direction being 'desc'.
+     *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "city=dallas&country=US&sort=country,asc&page=1"
      *
      *     th:with="newQueryString=${#qs.toggleSortDefaultDesc(#request.getQueryString(), 'country')}"
      *     => newQueryString = city=dallas&country=US&sort=country,desc&page=1
      * </pre>
+     * </blockquote>
      *
      * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.
@@ -897,72 +970,95 @@ public final class QueryStringHelper {
 
     /**
      * Returns a function accepting a sort field applying sorting logic according to the below scenarios.
-     * Consider the query string {@code 'sort=suburb,desc'}, the sort field provided to the returned function would
+     *
+     * <p>Consider the query string {@code 'sort=suburb,desc'}, the sort field provided to the returned function would
      * be 'suburb'. A function is returned to allow reuse within the thymeleaf template to avoid needing
-     * to provide the query string each time.
-
-     * <h3>Explanation</h3>
-     * If the {@code field} exists in the query string, it is toggled to its opposite direction.
+     * to provide the query string each time.</p>
+     *
+     * <p>If the {@code field} exists in the query string, it is toggled to its opposite direction.
      * Otherwise all existing sort keys are removed with the new sort field {@code 'field,defaultDirection'}
      * appended to the end of the new query. 'defaultDirection' is determined by the trailing 'Asc' or 'Desc' in
-     * the method name.
+     * the method name should no explicit direction be provided.</p>
      *
-     * <h3>Examples</h3>
+     * <h5>Thymeleaf Usage</h5>
      *
-     * <h4>Query string is null or empty</h4>
+     * <h6>Query string is null or empty</h6>
      * <p>Since {@code fieldSorterAsc} is used, 'Asc' is the default direction for the sort field 'country'.</p>
+     *
+     * <blockquote>
      * <pre>
-     *   #request.getQueryString() = null
+     *    #request.getQueryString() = null
      *
-     *   fieldSorterAsc(#request.getQueryString()).apply("country") => "sort=country,asc"
+     *    th:with="newQueryString=${#qs.fieldSorterAsc(#request.getQueryString()).apply('country')}"
+     *    => newQueryString = "sort=country,asc"
      * </pre>
+     * </blockquote>
      *
-     * <h4>Field exists and has an explicit sort direction</h4>
+     * <h6>Field exists and has an explicit sort direction</h6>
      * <p>{@code 'country'} has current sort direction of {@code asc} resulting in the opposite direction of {@code desc}
      * after the toggle.</p>
+     *
+     * <blockquote>
      * <pre>
-     *   #request.getQueryString() = "sort=country,asc&sort=city"
+     *      #request.getQueryString() = "city=melbourne&sort=country,asc&sort=city"
      *
-     *   fieldSorterAsc(#request.getQueryString()).apply("country") => "sort=country,desc&sort=city"
+     *     th:with="newQueryString=${#qs.fieldSorterAsc(#request.getQueryString()).apply('country')}"
+     *     => newQueryString = "city=melbourne&sort=country,desc&sort=city"
      * </pre>
+     * </blockquote>
      *
-     * <h4>Field exists and has implicit sort direction</h4>
+     * <h6>Field exists and has implicit sort direction</h6>
      * <p>Since {@code fieldSorterAsc} is used, 'Asc' is the default direction used by 'city' given there is no explicit
      * direction listed. The means 'city' is toggled to 'desc'.</p>
+     *
+     * <blockquote>
      * <pre>
-     *   #request.getQueryString() = "sort=country,asc&sort=city"
+     *     #request.getQueryString() = "city=melbourne&sort=country,asc&sort=city"
      *
-     *   fieldSorterAsc(#request.getQueryString()).apply("city") => "sort=country,asc&sort=city,desc"
+     *     th:with="newQueryString=${#qs.fieldSorterAsc(#request.getQueryString()).apply('city')}"
+     *     => newQueryString = "city=melbourne&sort=country,asc&sort=city,desc"
      * </pre>
+     * </blockquote>
      *
-     * <h4>Field does not exist</h4>
+     * <h6>Field does not exist</h6>
      * <p>Since {@code 'location'} does not exist as a sort field, a new sort key value pair is added to the end
      * of the query string upon removing any existing sorting. Note: the 'Asc' at the end of this method name
      * implies the default sort direction which is why 'location' is set to direction 'asc'.</p>
+     *
+     * <blockquote>
      * <pre>
-     *   #request.getQueryString() = "sort=country,asc&sort=city"
+     *      #request.getQueryString() = "city=melbourne&sort=country,asc&sort=city"
      *
-     *   fieldSorterAsc(#request.getQueryString()).apply("location") => "sort=location,asc"
+     *     th:with="newQueryString=${#qs.fieldSorterAsc(#request.getQueryString()).apply('location')}"
+     *     => newQueryString = "city=melbourne&sort=location,asc"
      * </pre>
+     * </blockquote>
      *
-     * <h4>How to sort on a nested object?</h4>
+     * <h6>How to sort on a nested object?</h6>
      * <p>Given a {@code Person} containing an {@code Address} with a suburb, use property dot notation to construct
      * the sort. Note: {@code Person} is assumed to exist in the {@code Model} available in the thymeleaf template.
      * To reiterate, since 'address.suburb' is not a current sort field, all existing sort fields are removed followed
      * by adding this new sort instruction to the end with default direction 'asc' implied by the trailing 'Asc' in the
      * method name.</p>
-     * <pre>
-     *   #request.getQueryString() = "sort=country,asc&sort=city"
      *
-     *   fieldSorterAsc(#request.getQueryString()).apply("address.suburb") => "sort=address.suburb,asc"
+     * <blockquote>
+     * <pre>
+     *      #request.getQueryString() = "city=melbourne&sort=country,asc&sort=city"
+     *
+     *     th:with="newQueryString=${#qs.fieldSorterAsc(#request.getQueryString()).apply('address.suburb')}"
+     *     => newQueryString = "city=melbourne&sort=address.suburb,asc"
      * </pre>
+     * </blockquote>
      *
-     * <h3>Thymeleaf Usage</h3>
+     * <h5>Complete example</h5>
+     * It is useful to define variables in a {@code th:with} statement to avoid needing to pass in the query string
+     * or request URI each time it is used within a {@code th} table header for example.
      *
+     * <blockquote>
      * <pre>
-     *     {@literal
-     *     <table> th:with="qstring=${#request.getQueryString()},
-     *                      urlBuilder=${#qs.urlBuilder(#request.getRequestURI())
+     *      {@literal
+     *      <table> th:with="qstring=${#request.getQueryString()},
+     *                      urlBuilder=${#qs.urlBuilder(#request.getRequestURI())},
      *                      fieldSorterAsc=${#qs.fieldSorterAsc(qstring)},
      *                      fieldSorterDesc=${#qs.fieldSorterDesc(qstring)}"
      *             <thead>
@@ -979,10 +1075,10 @@ public final class QueryStringHelper {
      *             </thead>
      *             ...
      *     </table>
-     *     }
+     *      }
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return a function accepting
      * the sort field. When this function is fully applied, the new query string will consist of 'sort=field,direction'
      * where 'direction' is derived from the trailing 'Asc' or 'Desc' of the {@code fieldSorterXXX} method.
@@ -1031,66 +1127,79 @@ public final class QueryStringHelper {
     /**
      * This method is useful for conditional css classes or tooltips where different values should be returned based
      * on the current sort direction. A function is returned accepting a single {@code String} sort field to avoid
-     * having to supply the same values each time when only the sort field will change.</p>
+     * having to supply the same values each time when only the sort field will change.
      *
-     * <p>There are 2 variants of this method {@code valueWhenMatchesSortXXX}. The trailing 'Asc' and 'Desc' is what
-     * determines the equality check as shown in the examples.</p>
+     * <p>There are 2 variants of this method {@code valueWhenMatchesSortXXX}. The trailing 'Asc' and 'Desc' determines
+     * how the equality check is performed as shown below.</p>
      *
-     * <h3>Examples</h3>
-     * <h4>Implicit sort direction</h4>
+     * <h5>Examples</h5>
+     *
+     * <h6>Implicit sort direction</h6>
+     *
      * <p>'city' has no direction, using this method with the trailing 'Asc' treats 'city' as having the
      * default direction 'asc' which results in the 'matching' value being returned.
      * </p>
+     *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = city=melbourne&state=vic&postcode=3000&sort=city
      *
-     *     valueWhenMatchesSortAsc(#request.getQueryString(), "missing", "matching", "nonMatching")
-     *                            .apply("city"); => "matching"
+     *     th:with="value=${#qs.valueWhenMatchesSortAsc(#request.getQueryString(), 'missing', 'matching', 'nonMatching').apply('city')}"
+     *     => value = 'matching'
      * </pre>
+     * </blockquote>
      *
-     * <h4>Explicit sort direction matches</h4>
+     * <h6>Explicit sort direction matches</h6>
      * <p>Similar to the above example but 'city' has an explicit direction 'asc' which matches the trailing 'Asc' of
      * this method causing the 'matching' value to be returned. If 'city' had direction 'desc' then use
      * {@code valueWhenMatchesSortDesc} to have the 'matching' value returned.
      * </p>
+     *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = city=melbourne&state=vic&postcode=3000&sort=city,asc
      *
-     *     valueWhenMatchesSortAsc(#request.getQueryString(), "missing", "matching", "nonMatching")
-     *                            .apply("city"); => "matching"
+     *     th:with="value=${#qs.valueWhenMatchesSortAsc(#request.getQueryString(), 'missing', 'matching', 'nonMatching').apply('city')}"
+     *     => value = 'matching'
      * </pre>
+     * </blockquote>
      *
-     * <h4>Explicit sort direction does NOT match</h4>
+     * <h6>Explicit sort direction does NOT match</h6>
      * <p>Similar to the above example but 'city' has an explicit direction 'desc'. Since this method has trailing 'Asc'
      * the equality check is {@code "desc".equals("asc")} which is false causing the 'nonMatching' value to be returned.
      * </p>
+     *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = city=melbourne&state=vic&postcode=3000&sort=city,desc
      *
-     *     valueWhenMatchesSortAsc(#request.getQueryString(), "missing", "matching", "nonMatching")
-     *                            .apply("city"); => "nonMatching"
+     *     th:with="value=${#qs.valueWhenMatchesSortAsc(#request.getQueryString(), 'missing', 'matching', 'nonMatching').apply('city')}"
+     *     => value = 'nonMatching'
      * </pre>
+     * </blockquote>
      *
-     * <h4>Field not found</h4>
+     * <h6>Field not found</h6>
      * <p>If the field does not appear in the query string under a sort key, the 'missing' value is returned. In this
      * example only 'city' is a sort field but the field supplied is 'country'.</p>
+     *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = city=melbourne&state=vic&postcode=3000&sort=city,desc
      *
-     *     valueWhenMatchesSortAsc(#request.getQueryString(), "missing", "matching", "nonMatching")
-     *                            .apply("country"); => "nonMatching"
+     *     th:with="value=${#qs.valueWhenMatchesSortAsc(#request.getQueryString(), 'missing', 'matching', 'nonMatching').apply('country')}"
+     *     => value = 'missing'
      * </pre>
+     * </blockquote>
      *
+     * <h5>Complete example</h5>
      * <p>The final example shows a use case for creating conditional tooltips. The first argument
      * 'Sort hotel name by default direction of ascending', displays how the column will be sorted given no sorting
      * is applied. Otherwise when the 'name' field has a sort direction equal to {@code asc}, the tooltip displays
      * the opposite direction of 'Sort hotel name by descending' which is equivalent to the 'matching' value in the above
      * examples.</p>
-     *
-     * <h3>Thymeleaf Usage</h3>
-     *
+     * <blockquote>
      * <pre>
-     *     {@literal
+     *  {@literal
      *     <table class="ui sortable celled table"
      *                th:with="qstring=${#request.getQueryString()},
      *                         cssWhenFieldIsAsc=${#qs.valueWhenMatchesSortAsc(qstring, '', 'sorted ascending', 'sorted descending')}">
@@ -1112,8 +1221,8 @@ public final class QueryStringHelper {
      *    </table>
      *     }
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return a function that returns
      * the 'missingValue'. All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
@@ -1129,7 +1238,7 @@ public final class QueryStringHelper {
     }
 
     /**
-     * See {@link #valueWhenMatchesSortAsc(String, String, String, String)} for docs but apply the opposite logic
+     * The same as {@link #valueWhenMatchesSortAsc(String, String, String, String)} except applies the opposite logic
      * for 'desc' direction.
      *
      * @param queryString      The current query string.
@@ -1148,20 +1257,19 @@ public final class QueryStringHelper {
      * Removes all existing sort keys and associates the supplied field and sort direction values to a sort key which
      * gets appended to the end of the query string.
      *
-     * <h3>Thymeleaf Usage</h3>
-     * <p>Notice the new query string only had the new sort field and directions with all previous sorting removed.</p>
+     * <h5>Thymeleaf Usage</h5>
+     * <p>Notice the new query string only has the new sort field and directions with all previous sorting removed.</p>
      *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = city=melbourne&postcode=3000&page=0&sort=stars,desc&sort=name
      *
-     * {@literal
-     *   <h2 th:with="newQueryString=${#qs.createNewSort(#request.getQueryString(), {'city,desc', 'suburb'})}">
-     * }
+     *     {@literal <h2 th:with="newQueryString=${#qs.createNewSort(#request.getQueryString(), {'city,desc', 'suburb'})}">}
      *
-     *     newQueryString = city=melbourne&postcode=3000&page=0&sort=city,desc&sort=suburb
+     *     => newQueryString = city=melbourne&postcode=3000&page=0&sort=city,desc&sort=suburb
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>If the {@code queryString} is {@code null} or empty and {@code fieldAndDirections} contains values,
      * the new query string will consist of only the new {@code fieldAndDirections}, otherwise an empty
      * string will be returned.</p>
@@ -1181,17 +1289,17 @@ public final class QueryStringHelper {
     /**
      * Checks if the supplied {@code field} appears as a sort field.
      *
-     * <h3>Thymeleaf Usage</h3>
+     * <h5>Thymeleaf Usage</h5>
+     *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = city=melbourne&postcode=3000&page=0&sort=city,desc
      *
-     * {@literal
-     *   <h2 th:with="isSorted=${#qs.isFieldSorted(#request.getQueryString(), 'city')}">
-     *   => isSorted = true
-     * }
+     *    {@literal <h2 th:with="isSorted=${#qs.isFieldSorted(#request.getQueryString(), 'city')}">}
+     *    => isSorted = true
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return {@code false}.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
@@ -1233,48 +1341,59 @@ public final class QueryStringHelper {
      * referred to as an implicit direction which will return 'asc' if {@code getCurrentSortDirectionAsc}
      * is being used.
      *
-     * <h3>Thymeleaf Usage</h3>
+     * <h5>Thymeleaf Usage</h5>
      *
-     * <h4>Sort field has implicit direction</h4>
+     * <h6>Sort field has implicit direction</h6>
      * <p>sort field {@code suburb} has no direction so the fallback is to return the default 'asc' if
      * {@code getCurrentSortDirectionAsc} is being used.</p>
      *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "city=melbourne&postcode=3000&sort=suburb"
      *
      *     th:with="direction=${#qs.getCurrentSortDirectionAsc(#request.getQueryString(), 'suburb')}"
      *     => direction = "asc"
      * </pre>
+     * </blockquote>
      *
-     * <h4>Sort field has explicit direction</h4>
+     * <h6>Sort field has explicit direction</h6>
      * <p>sort field {@code suburb} has an explicit sort direction of {@code desc} which is returned.</p>
+     *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "city=melbourne&postcode=3000&sort=suburb,desc"
      *
      *     th:with="direction=${#qs.getCurrentSortDirectionAsc(#request.getQueryString(), 'suburb')}"
      *     => direction = "desc"
      * </pre>
+     * </blockquote>
      *
-     * <h4>Sort field does not exist</h4>
+     * <h6>Sort field does not exist</h6>
      * <p>sort field {@code country} does not exist so null is returned</p>
+     *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = #request.getQueryString() = "city=melbourne&postcode=3000&sort=suburb"
      *
      *     th:with="direction=${#qs.getCurrentSortDirectionAsc(#request.getQueryString(), 'country')}"
      *     => direction = null
      * </pre>
+     * </blockquote>
      *
-     * <h4>Sort field is a nested object</h4>
+     *
+     * <h6>Sort field is a nested object</h6>
      * <p>Consider a {@code Person} containing an {@code Address}. For example, use the property path to access
      * the sort field 'address.suburb'. This assumes the {@code Person} is in the {@code Model}.</p>
+     *
+     * <blockquote>
      * <pre>
      *     #request.getQueryString() = "city=melbourne&postcode=3000&sort=address.suburb,desc"
      *
      *     th:with="direction=${#qs.getCurrentSortDirectionAsc(#request.getQueryString(), 'address.suburb')}"
      *     => direction = "desc"
      * </pre>
+     * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return null.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
@@ -1287,7 +1406,7 @@ public final class QueryStringHelper {
     }
 
     /**
-     * See {@link #getCurrentSortDirectionAsc(String, String)}. This method uses {@code desc} as the fallback
+     * The same as {@link #getCurrentSortDirectionAsc(String, String)} except this method uses {@code desc} as the fallback
      * when the sort field contains no explicit sort direction.
      *
      * @param queryString The current query string.
@@ -1301,27 +1420,29 @@ public final class QueryStringHelper {
     /**
      * Concatenates the request uri with the query string should it exist. The motivation for this method is to provide
      * a solution for restrictions preventing methods receiving the {@code HttpServletRequest} directly via
-     * the {@code #request} object in Thymeleaf 3.0.9
-     * http://forum.thymeleaf.org/Thymeleaf-3-0-9-JUST-PUBLISHED-td4030728.html.</p>
+     * the {@code #request} object in Thymeleaf 3.0.9.
+     * <a href="http://forum.thymeleaf.org/Thymeleaf-3-0-9-JUST-PUBLISHED-td4030728.html">
+     *     http://forum.thymeleaf.org/Thymeleaf-3-0-9-JUST-PUBLISHED-td4030728.html
+     * </a>
      *
      * <p>Since each method cannot accept a {@code #request}, its recommended to assign the query string to a new
-     * variable before proceeding to rebuild the complete URI. </p>
+     * variable before proceeding to rebuild the complete URI. To avoid having to supply {@code #request.getRequestURI()}
+     * each time, use {@link #urlBuilder(String)}.</p>
      *
-     * <h3>Thymeleaf usage</h3>
-     *
+     * <h5>Thymeleaf usage</h5>
+     * <blockquote>
      * <pre>
-     *
      *     th:with="newQueryString=${#qs.incrementPage(#request.getQueryString())}"
      *     th:href="${#qs.url(#request.getRequestURI(), newQueryString)}"
-     *
      * </pre>
+     * </blockquote>
      *
      * <p>Supplying a null or empty {@code requestURI} throws an IllegalArgumentException. If
      * the {@code queryString} is present it will be concatenated to the {@code requestURI}.</p>
      *
      * @param requestURI  The result of calling {@code #request.getRequestURI()}.
      * @param queryString The current query string.
-     * @return The new query string.
+     * @return The new url.
      */
     public String url(String requestURI, String queryString) {
         if (requestURI == null || requestURI.isEmpty()) {
@@ -1335,17 +1456,15 @@ public final class QueryStringHelper {
      * See {@link #url(String, String)} for docs as this method is provided out of convenience to clean up thymeleaf
      * template code to avoid having to supply the {@code #request.getRequestURI()} each time.
      *
-     * <p>
-     *
      * <p>This method is a curried function accepting the {@code requestURI} and returns a function that
      * accepts the {@code queryString} which concatenates the 2 together. The below example shows the {@code urlBuilder}
      * being defined as a variable for reuse in every table header without needing to supply the {@code requestURI}
      * each time.</p>
      *
-     * <h3>Thymeleaf Usage</h3>
+     * <h5>Thymeleaf Usage</h5>
+     * <blockquote>
      * <pre>
      *     {@literal
-     *
      *     <table class="ui sortable celled table"
      *                th:with="qstring=${#request.getQueryString()},
      *                         urlBuilder=${#qs.urlBuilder(#request.getRequestURI())},
@@ -1362,29 +1481,12 @@ public final class QueryStringHelper {
      *    </table>
      *     }
      * </pre>
+     * </blockquote>
      *
      * @param requestURI The result of {@code #request.getRequestURI()}
-     * @return The new query string.
+     * @return The new url.
      */
     public Function<String, String> urlBuilder(String requestURI) {
         return queryString -> url(requestURI, queryString);
     }
-
-    /*
-       also have variants of the same method that just take in a #request and call getQueryString for shorthand.
-
-
-       // spring mvc convenience helpers.
-       incrementPage
-       decrementPage
-
-       something to toggle sort order for a key. if desc, change to asc and vice versa.
-
-
-       github java doc
-       look at java8extras for how to integrate with ide autocomplete and structure project.
-       ask thymeleaf people about contrib or maintain it as a separate dialect
-     */
-
-
 }
