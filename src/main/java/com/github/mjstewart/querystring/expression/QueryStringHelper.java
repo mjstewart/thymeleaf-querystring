@@ -313,7 +313,8 @@ public final class QueryStringHelper {
     /**
      * Removes the target key if its value is equal to the matching value by using case insensitive equality.
      * The example shows that for the target key {@code 'region'}, only remove the key if the value is equal
-     * to 'australia'. Note the case insensitivity.
+     * to 'australia'. Note the case insensitivity. Use {#link {@link #removeAnyKeyMatchingValue(String, String)}}
+     * if any key matching the value should be removed rather than a specific target key.
      *
      * <p><b>Thymeleaf usage</b></p>
      * <blockquote>
@@ -364,7 +365,8 @@ public final class QueryStringHelper {
     }
 
     /**
-     * Gets the value associated with the first occurrence of the given key.
+     * Gets the value associated with the first occurrence of the given key. Use {@link #getAllValues(String, String)}
+     * if there are duplicate keys and require all values to be returned.
      *
      * <h5>Thymeleaf usage</h5>
      * {@code #request.getQueryString() = "name=john&age=30&name=joseph&month=march&name=smith"}

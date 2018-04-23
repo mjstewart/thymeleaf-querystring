@@ -68,15 +68,9 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.0.0</version>
                 <configuration>
-                    <!--<overview>${basedir}/src/main/javadoc/overview.html</overview>-->
-                    <!--<javadocDirectory>${basedir}/src/main/javadoc</javadocDirectory>-->
+                    <overview>${basedir}/src/main/javadoc/overview.html</overview>
                     <outputDirectory>${api.docs.directory}</outputDirectory>
-                    <!--<outputDirectory>${project.build.directory}/docs</outputDirectory>-->
-                    <additionalparam>-Xdoclint:none</additionalparam>
-                    <!--<sourceFileIncludes>-->
-                        <!--<include>QueryStringHelper.java</include>-->
-                    <!--</sourceFileIncludes>-->
-
+                    <additionalJOption>-Xdoclint:none</additionalJOption>
                 </configuration>
                 <executions>
                     <execution>
