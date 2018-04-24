@@ -528,6 +528,8 @@ public class SpringHelperTest {
         assertThat(result).isEqualTo(query);
     }
 
+
+
     @Test
     public void toggleSortDefaultAsc_QueryStringIsNull_ReturnEmptyString() {
         QueryStringHelper helper = new QueryStringHelper();
@@ -781,6 +783,104 @@ public class SpringHelperTest {
         QueryStringHelper helper = new QueryStringHelper();
         String result = helper.toggleSortDefaultDesc(query, "city");
         assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
+    public void resetPageNumber_QueryStringIsNull_ReturnsEmptyString() {
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.resetPageNumber(null);
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    public void resetPageNumber_QueryStringIsEmpty_ReturnsEmptyString() {
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.resetPageNumber("");
+        assertThat(result).isEmpty();
+    }
+
+    /**
+     * When there is no 'page' key, return the original unmodified query string.
+     */
+    @Test
+    public void resetPageNumber_PageKeyNotFound_ReturnsQueryString() {
+        String query = "city=melbourne&state=vic&country=aus&postcode=3000&sort=city,asc";
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.resetPageNumber(query);
+        assertThat(result).isEqualTo(query);
+    }
+
+    /**
+     * When the 'page' key exists and is already at 0, it should stay at 0 after reset.
+     */
+    @Test
+    public void resetPageNumber_PageFound_PageIsZero() {
+        String query = "city=melbourne&state=vic&page=0&country=aus&postcode=3000&sort=city,asc";
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.resetPageNumber(query);
+        assertThat(result).isEqualTo(query);
+    }
+
+    /**
+     * When the 'page' key exists and is greater than 0, it should be reset to 0.
+     */
+    @Test
+    public void resetPageNumber_PageFound_AboveZero() {
+        String query = "city=melbourne&state=vic&page=45&country=aus&postcode=3000&sort=city,asc";
+        String expect = "city=melbourne&state=vic&page=0&country=aus&postcode=3000&sort=city,asc";
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.resetPageNumber(query);
+        assertThat(result).isEqualTo(expect);
+    }
+
+    @Test
+    public void setPageNumber_QueryStringIsNull_ReturnsEmptyString() {
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.setPageNumber(null, "5");
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    public void setPageNumber_QueryStringIsEmpty_ReturnsEmptyString() {
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.setPageNumber("", "5");
+        assertThat(result).isEmpty();
+    }
+
+    /**
+     * When there is no 'page' key, return the original unmodified query string.
+     */
+    @Test
+    public void setPageNumber_PageKeyNotFound_ReturnsQueryString() {
+        String query = "city=melbourne&state=vic&country=aus&postcode=3000&sort=city,asc";
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.setPageNumber(query, "5");
+        assertThat(result).isEqualTo(query);
+    }
+
+    /**
+     * When the 'page' key exists and its value is the same as the value to set to, the result
+     * should be the same as the original query string.
+     */
+    @Test
+    public void setPageNumber_PageFound_PageIsZero() {
+        String query = "city=melbourne&state=vic&page=5&country=aus&postcode=3000&sort=city,asc";
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.setPageNumber(query, "5");
+        assertThat(result).isEqualTo(query);
+    }
+
+    /**
+     * When the 'page' key exists and its value is different to what the new set value is, the resulting
+     * query string should contain the 'page' key with the 'set' to value.
+     */
+    @Test
+    public void setPageNumber_PageFound_AboveZero() {
+        String query = "city=melbourne&state=vic&page=45&country=aus&postcode=3000&sort=city,asc";
+        String expect = "city=melbourne&state=vic&page=3&country=aus&postcode=3000&sort=city,asc";
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.setPageNumber(query, "3");
+        assertThat(result).isEqualTo(expect);
     }
 
     @Test

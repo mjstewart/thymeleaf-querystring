@@ -792,6 +792,89 @@ public final class QueryStringHelper {
     }
 
     /**
+     * Sets the 'page' key to {@code 0} should it exist otherwise returns the unmodified query string.
+     * This is a convenience method which is equivalent to using {@link #replaceFirst(String, String, String)}.
+     *
+     * <blockquote>
+     * <pre>
+     *         th:with="newQueryString=${#qs.replaceFirst(#request.getQueryString(), 'page', '0')}"
+     *     </pre>
+     * </blockquote>
+     *
+     * <p><b>Thymeleaf usage</b></p>
+     * The typical use case is providing a back button that goes all the way back to page {@code 0}.
+     * {@code th:if} is not required, it is only presented to show conditional logic for only displaying the
+     * anchor tag if the {@code Pageable} can go back. Note {@code #qs.url} is used to concatenate the
+     * new query string with the request URI to rebuild the new URL.
+     * <blockquote>
+     * <pre>
+     *     {@literal
+     *    <a class="icon item"
+     *       th:if="${results.getPageable().hasPrevious()}"
+     *       th:with="newQueryString=${#qs.resetPageNumber(#request.getQueryString())}"
+     *       th:href="${#qs.url(#request.getRequestURI(), newQueryString)}">
+     *       <i class="angle double left icon"></i>
+     *     </a>
+     *     }
+     * </pre>
+     * </blockquote>
+     *
+     * @param queryString The current query string.
+     * @return The new query string with the page set to {@code 0} should the page key exist.
+     */
+    public String resetPageNumber(String queryString) {
+        return replaceFirst(queryString, "page", "0");
+    }
+
+    /**
+     * Sets the 'page' key to the supplied {@code number} should it exist otherwise returns the unmodified query string.
+     * This is a convenience method which is equivalent to using {@link #replaceFirst(String, String, String)}
+     * as show directly below.
+     * Use {@link #incrementPage(String, int)} or {@link #decrementPage(String)} if page scrolling is needed.
+     *
+     * <blockquote>
+     * <pre>
+     *         th:with="newQueryString=${#qs.replaceFirst(#request.getQueryString(), 'page', '4')}"
+     * </pre>
+     * </blockquote>
+     *
+     * <p><b>Thymeleaf usage</b></p>
+     * The typical use case is providing a next button that skips all the way to the last page.
+     * The outer scope {@code th:with} block conveniently declares the variables needed to determine the last page.
+     * {@code th:unless="${isOnLastPage}"} is not required, its shown to illustrate only displaying the anchor
+     * tag if the current page is not the last. Note {@code #qs.url} is used to concatenate the
+     * new query string with the request URI to rebuild the new URL.
+     * <blockquote>
+     * <pre>
+     *     {@literal
+     *      <tfoot th:with="lastPage=${results.getTotalPages() - 1},
+     *                      pageNumber=${results.getPageable().getPageNumber()},
+     *                      isOnLastPage=${pageNumber == lastPage}">
+     *
+     *      <tr>
+     *          <th>
+     *             <a class="icon item"
+     *              th:unless="${isOnLastPage}"
+     *              th:with="newQueryString=${#qs.setPageNumber(#request.getQueryString(), lastPage)}"
+     *              th:href="${#qs.url(#request.getRequestURI(), newQueryString)}">
+     *              <i class="angle double right icon"></i>
+     *            </a>
+     *          </th>
+     *      </tr>
+     *      </tfoot>
+     *     }
+     * </pre>
+     * </blockquote>
+     *
+     * @param queryString The current query string.
+     * @param number      The new value to set the 'page' key to should it exist.
+     * @return The new query string with the page set to {@code number} should the page key exist.
+     */
+    public String setPageNumber(String queryString, String number) {
+        return replaceFirst(queryString, "page", number);
+    }
+
+    /**
      * See {@link #setSortDirectionAsc(String, String)} as this method centralises the logic based on sort direction.
      *
      * @param queryString   The current query string
