@@ -20,7 +20,7 @@ public final class QueryStringHelper {
     /**
      * Replaces only the first occurrence of {@code key} with {@code value} while maintaining the query strings
      * original order.
-     *
+     * <p></p>
      * <p><b>Thymeleaf usage</b></p>
      *
      * <blockquote>
@@ -47,7 +47,7 @@ public final class QueryStringHelper {
     /**
      * Replaces the nth key with the supplied value based on a keys relative index while maintaining the query strings
      * original order.
-     *
+     * <p></p>
      * <p><b>Thymeleaf usage</b></p>
      * <p>
      * {@code region} can be thought of as having an array of 3 values.
@@ -105,6 +105,7 @@ public final class QueryStringHelper {
      * <p>If 1 value was provided, only the first value would be replaced, whereas if 100 values were provided then
      * all 3 would be replaced by the first 3 corresponding replacement values.</p>
      *
+     * <p></p>
      * <p><b>Thymeleaf usage</b></p>
      * <blockquote>
      * <pre>
@@ -129,12 +130,13 @@ public final class QueryStringHelper {
 
     /**
      * Removes the first occurrence of the supplied key while maintaining the query strings original order.
+     * <p></p>
      *
-     * <h5>Thymeleaf usage</h5>
+     * <p><b>Thymeleaf usage</b></p>
      * {@code #request.getQueryString() = "name=john&age=30&name=joseph&month=march&name=smith"}
      * <p></p>
      *
-     * <h6>All keys are unique</h6>
+     * <p><b>1. All keys are unique</b></p>
      * If all keys are unique, this method simply removes the key
      * <blockquote>
      * <pre>
@@ -143,7 +145,7 @@ public final class QueryStringHelper {
      *  </pre>
      * </blockquote>
      *
-     * <h6>Duplicate keys</h6>
+     * <p><b>2. Duplicate keys</b></p>
      * When there are duplicate keys such as {@code 'name'} containing 3 values {@code ['john', 'joseph', 'smith']}.
      * The effect of calling {@code removeFirst} is simply removing {@code name[0]}.
      * <blockquote>
@@ -170,7 +172,7 @@ public final class QueryStringHelper {
      *
      * <p>The example shows removing keys {@code ['region', 'postcode']} with the resulting query string
      * containing the remaining keys {@code 'suburb' and 'language'} in the order they originally appeared.</p>
-     *
+     * <p></p>
      * <p><b>Thymeleaf usage</b></p>
      * <blockquote>
      * <pre>
@@ -316,6 +318,7 @@ public final class QueryStringHelper {
      * The example shows that for the target key {@code 'region'}, only remove the key if the value is equal
      * to 'AUSTRALIA'. Note the case is sensitive. Use {@link #removeAnyKeyMatchingValue(String, String)}
      * if any key matching the value should be removed rather than a specific target key.
+     * <p></p>
      *
      * <p><b>Thymeleaf usage</b></p>
      * <blockquote>
@@ -342,6 +345,7 @@ public final class QueryStringHelper {
     /**
      * Similar to {@link #removeKeyMatchingValue(String, String, String)} except no target key is
      * provided causing all keys to be eligible for removal if the value matches. Case sensitive equality applies.
+     * <p></p>
      *
      * <p><b>Thymeleaf usage</b></p>
      * <p>The example shows any key matching the value 'AUSTRALIA' (case sensitive) will be removed.</p>
@@ -367,13 +371,14 @@ public final class QueryStringHelper {
 
     /**
      * Gets the value associated with the first occurrence of the given key. Use {@link #getAllValues(String, String)}
-     * if there are duplicate keys and require all values to be returned.
+     * if there are duplicate keys and you require all values to be returned.
+     * <p></p>
      *
-     * <h5>Thymeleaf usage</h5>
+     * <p><b>Thymeleaf usage</b></p>
      * {@code #request.getQueryString() = "name=john&age=30&name=joseph&month=march&name=smith"}
      * <p></p>
      *
-     * <h6>All keys are unique</h6>
+     * <p><b>1. All keys are unique</b></p>
      * If all keys are unique, the single value associated to the key is returned
      * <blockquote>
      * <pre>
@@ -382,7 +387,7 @@ public final class QueryStringHelper {
      *     </pre>
      * </blockquote>
      *
-     * <h6>Duplicate keys</h6>
+     * <p><b>2. Duplicate keys</b></p>
      * If there are duplicate keys such as {@code 'name'} with values {@code ['john', 'joseph', 'smith']}
      * then {@code getFirstValue} returns {@code name[0]}
      * <blockquote>
@@ -392,7 +397,7 @@ public final class QueryStringHelper {
      *     </pre>
      * </blockquote>
      *
-     * <h6>Key not found</h6>
+     * <p><b>3. Key not found</b></p>
      * If no key is found, null is returned.
      * <blockquote>
      * <pre>
@@ -414,12 +419,17 @@ public final class QueryStringHelper {
 
     /**
      * Gets all value associated with the the given key.
-     *
-     * <h5>Thymeleaf usage</h5>
-     * {@code #request.getQueryString() = "name=john&age=30&name=joseph&month=march&name=smith"}
      * <p></p>
      *
-     * <h6>All keys are unique</h6>
+     * <p><b>Thymeleaf usage</b></p>
+     * <blockquote>
+     * <pre>
+     *    #request.getQueryString() = "name=john&age=30&name=joseph&month=march&name=smith"
+     * </pre>
+     * </blockquote>
+     * <p></p>
+     *
+     * <p><b>1. All keys are unique</b></p>
      * The returned list will contain the single value associated to the key
      * <blockquote>
      * <pre>
@@ -428,7 +438,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h6>Duplicate keys</h6>
+     * <p><b>2. Duplicate keys</b></p>
      * If there are duplicate keys such as {@code 'name'} with values {@code ['john', 'joseph', 'smith']},
      * all 3 values are returned in a list
      * <blockquote>
@@ -438,7 +448,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h6>Key not found</h6>
+     * <p><b>3. Key not found</b></p>
      * If no key is found, an empty list is returned.
      * <blockquote>
      * <pre>
@@ -461,12 +471,17 @@ public final class QueryStringHelper {
     /**
      * Adds the given {@code key} and {@code value} to the end of the query string with the {@code value}
      * being escaped to form a valid query string.
-     *
-     * <h5>Thymeleaf usage</h5>
-     * {@code #request.getQueryString() = "name=john&age=30"}
      * <p></p>
      *
-     * <h6>New key</h6>
+     * <p><b>Thymeleaf usage</b></p>
+     * <blockquote>
+     * <pre>
+     *  #request.getQueryString() = "name=john&age=30"
+     * </pre>
+     * </blockquote>
+     * <p></p>
+     *
+     * <p><b>1. New key</b></p>
      * A new key and its value is added to the end. Notice how the white space has been escaped.
      * <blockquote>
      * <pre>
@@ -475,7 +490,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h6>Key and value exists</h6>
+     * <p><b>2. Key and value exists</b></p>
      * If exactly the same key and value exist, the original query string is returned unmodified.
      * <blockquote>
      * <pre>
@@ -484,7 +499,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h6>Same key but different value</h6>
+     * <p><b>3. Same key but different value</b></p>
      * If same key but different value is added, the new key and value pair is added to the end resulting
      * in 2 of the same keys having different values.
      * <blockquote>
@@ -494,7 +509,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h6>null or empty query string</h6>
+     * <p><b>4. null or empty query string</b></p>
      * If the query string is {@code null} or empty, the key and value will form the new query string.
      * <blockquote>
      * <pre>
@@ -550,8 +565,9 @@ public final class QueryStringHelper {
      *
      * <p>This method is a useful alternative to executing a replace. Sometimes its not known the exact format of
      * the query string so it is easier to simply remove 1 or many keys followed by adding the new key/value pairs.</p>
+     * <p></p>
      *
-     * <h5>Thymeleaf usage</h5>
+     * <p><b>Thymeleaf usage</b></p>
      * <p>The example demonstrates removing all occurrences of the 'postcode' and 'sort' keys. The key 'sort' is then
      * re-added to the end of the query string with a value of 'city,desc'. When using spring
      * {@code PagingAndSortingRepository}, the primary sort field is defined first followed by secondary sort keys.
@@ -592,8 +608,9 @@ public final class QueryStringHelper {
      * Convenience method to perform a {@link #removeNth(String, String, int)} on many unique keys while
      * maintaining the original query strings ordering. After the removal, the list of key value pairs are added to
      * the end of the query string.
+     * <p></p>
      *
-     * <h5>Thymeleaf usage</h5>
+     * <p><b>Thymeleaf usage</b></p>
      * <p>The example shows key {@code 'sort'} having values {@code ['country,asc', 'city,desc']} and key {@code 'region'}
      * with values {@code ['north, 'upper', 'border']}.</p>
      *
@@ -648,8 +665,9 @@ public final class QueryStringHelper {
      * Decrementing a value can be achieved by supplying a negative number.
      * Consider alternative methods such as {@code adjustFirstNumericValueBy} or {@code incrementPage} if a specific
      * key is being targeted.
+     * <p></p>
      *
-     * <h5>Thymeleaf usage</h5>
+     * <p><b>Thymeleaf usage</b></p>
      * <p>The example shows key {@code 'policy'} having values {@code [10, 20, 30]}. Lets assume we want to add 5 to only
      * the values at index 1 and 2. The result is the last 2 values being incremented by 5 while the first value remains
      * unchanged at 10.</p>
@@ -681,8 +699,9 @@ public final class QueryStringHelper {
      * Functions the same as {@link #adjustNumericValueBy(String, String, List, int)} except only updates
      * the first occurrence of the numeric key value. This method is provided for convenience to avoid having to provide
      * the relative index list. To decrement the value, supply a negative number.
+     * <p></p>
      *
-     * <h5>Thymeleaf usage</h5>
+     * <p><b>Thymeleaf usage</b></p>
      * <p>The example shows key {@code 'policy'} having values {@code [10, 20, 30]}. This method only updates
      * {@code index 0} resulting in the first 'policy' key having the new value 12.</p>
      *
@@ -714,8 +733,9 @@ public final class QueryStringHelper {
      *
      * <p>Use {@link #incrementPage(String, int)} to provide automatic upper bounds checking to ensure page is not
      * incremented beyond what the {@code PagingAndSortingRepository} will provide.</p>
+     * <p></p>
      *
-     * <h5>Thymeleaf usage</h5>
+     * <p><b>Thymeleaf usage</b></p>
      *
      * <blockquote>
      * <pre>
@@ -726,8 +746,6 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.</p>
      *
      * @param queryString The current query string.
@@ -741,12 +759,13 @@ public final class QueryStringHelper {
      * The same as {@link #incrementPage(String)} except only increments the existing value if it is below the
      * {@code maxBound}. This is convenient to use to avoid having to implement additional bounds checking in the
      * template code.
+     * <p></p>
      *
-     * <h5>Thymeleaf usage</h5>
+     * <p><b>Thymeleaf usage</b></p>
      * <p>Consider a html table with paging where you would like to prevent the page count from exceeding the total pages
      * available from the {@code PagingAndSortingRepository}. The example assumes {@code customers} is of type
-     * {@code Page<Customer>} and is in the {@code Model}. If there are 10 total pages, and the current page is 9
-     * representing the last page, setting {@code maxBound = 9} will prevent the page from being incremented.</p>
+     * {@code Page<Customer>} and is in the {@code Model}. If there are {@code 10} total pages, and the current page is
+     * {@code 9} representing the last page, setting {@code maxBound = 9} will prevent the page from being incremented.</p>
      *
      * <blockquote>
      * <pre>
@@ -769,8 +788,9 @@ public final class QueryStringHelper {
      * The value is not decremented below {@code 0} which eliminates the need to do lower bound checking within the thymeleaf
      * template itself. This method is useful when working with spring {@code PagingAndSortingRepository} which uses
      * the key {@code 'page'} by convention.
+     * <p></p>
      *
-     * <h5>Thymeleaf usage</h5>
+     * <p><b>Thymeleaf usage</b></p>
      * <blockquote>
      * <pre>
      *     #request.getQueryString() = "city=dallas&country=US&sort=country,desc&page=1"
@@ -819,6 +839,8 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
+     * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.</p>
+     *
      * @param queryString The current query string.
      * @return The new query string with the page set to {@code 0} should the page key exist.
      */
@@ -866,6 +888,8 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
+     * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.</p>
+     *
      * @param queryString The current query string.
      * @param number      The new value to set the 'page' key to should it exist.
      * @return The new query string with the page set to {@code number} should the page key exist.
@@ -896,8 +920,9 @@ public final class QueryStringHelper {
      * Finds a {@code 'sort'} key having a value equal to {@code sortField} which is to be changed to {@code asc}.
      * This method is useful when working with spring {@code PagingAndSortingRepository} which uses
      * the key {@code 'sort'} by convention
+     * <p></p>
      *
-     * <h5>Thymeleaf usage</h5>
+     * <p><b>Thymeleaf usage</b></p>
      * <p>The example shows 'country' as not having an explicit sort direction meaning the default direction is
      * determined by the spring repository. Since the {@code setSortDirectionXXX} with trailing 'Asc' is used, 'country'
      * is set to direction 'asc'.</p>
@@ -911,7 +936,6 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <b>Note:</b>
      * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.
      * All other arguments must receive valid values otherwise the behaviour is undefined.</p>
      *
@@ -940,10 +964,10 @@ public final class QueryStringHelper {
      * to its opposite. E.g: 'asc' becomes 'desc' and vice versa. There are 2 variants of this method
      * {@code toggleSortDefaultXXX} with trailing 'Asc' or 'Desc'. The trailing direction determines how a sort field
      * with no direction is treated as illustrated in the below examples.
-     *
-     * <h5>Thymeleaf usage</h5>
-     *
-     * <h6>Implicit sort direction</h6>
+     * <p></p>
+     * <p><b>Thymeleaf usage</b></p>
+     * <p></p>
+     * <p><b>1. Implicit sort direction</b></p>
      * 'country' has no explicit direction implying its default direction is 'asc' since
      * the {@code toggleSortDefaultXXX} trailing 'Asc' method is being used. Since the current direction is 'asc',
      * toggling causes the new direction to be 'desc'.
@@ -957,8 +981,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     *
-     * <h6>Explicit sort direction</h6>
+     * <p><b>2. Explicit sort direction</b></p>
      * 'country' has an explicit direction of 'desc' resulting in the post toggle direction being 'asc'.
      * <blockquote>
      * <pre>
@@ -982,10 +1005,10 @@ public final class QueryStringHelper {
 
     /**
      * Works the same as {@link #toggleSortDefaultAsc(String, String)} except applies the default sort direction 'desc'.
-     *
-     * <h5>Thymeleaf usage</h5>
-     *
-     * <h6>Implicit sort direction</h6>
+     * <p></p>
+     * <p><b>Thymeleaf usage</b></p>
+     * <p></p>
+     * <p><b>1. Implicit sort direction</b></p>
      * 'country' has no explicit direction implying its default direction is 'desc' since
      * the {@code toggleSortDefaultXXX} trailing 'Desc' method is being used. Since the current direction is 'desc',
      * toggling causes the new direction to be 'asc'.
@@ -999,7 +1022,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h6>Explicit sort direction</h6>
+     * <p><b>2. Explicit sort direction</b></p>
      * 'country' has an explicit direction of 'asc' resulting in the post toggle direction being 'desc'.
      *
      * <blockquote>
@@ -1025,10 +1048,10 @@ public final class QueryStringHelper {
     /**
      * When the supplied {@code sortField} appears under a 'sort key' it is kept, otherwise all other sort fields are
      * removed. If the supplied {@code sortField} does not appear under a 'sort key', ALL sort keys are removed.
-     *
-     * <h5>Thymeleaf usage</h5>
-     *
-     * <h6>Sort field exists</h6>
+     * <p></p>
+     * <p><b>Thymeleaf usage</b></p>
+     * <p></p>
+     * <p><b>1.Sort field exists</b></p>
      * Since 'city' appears as a sort field, all other sort fields are removed while still keeping 'city'.
      *
      * <blockquote>
@@ -1040,7 +1063,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h6>No sort field exist</h6>
+     * <p><b>2. No sort field exist</b></p>
      * Since 'state' does not appear as a sort field, all sort fields are removed.
      *
      * <blockquote>
@@ -1107,9 +1130,11 @@ public final class QueryStringHelper {
      * removed with the new sort field appended to the end of the query string having form {@code 'field,defaultDirection'}.
      * {@code 'defaultDirection'} is determined by the trailing 'Asc' or 'Desc'.</p>
      *
-     * <h5>Thymeleaf Usage</h5>
+     * <p></p>
+     * <p><b>Thymeleaf usage</b></p>
+     * <p></p>
      *
-     * <h6>Query string is null or empty</h6>
+     * <p><b>1. Query string is null or empty</b></p>
      * <p>Since {@code fieldSorterAsc} is used, 'Asc' is the default direction for the sort field 'country'.</p>
      *
      * <blockquote>
@@ -1121,7 +1146,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h6>Field exists and has an explicit sort direction</h6>
+     * <p><b>2. Field exists and has an explicit sort direction</b></p>
      * <p>{@code 'country'} has current sort direction of {@code asc} resulting in the opposite direction of {@code desc}
      * after the toggle. Note how all other sort fields are removed.</p>
      *
@@ -1134,7 +1159,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h6>Field exists and has implicit sort direction</h6>
+     * <p><b>3. Field exists and has implicit sort direction</b></p>
      * <p>Since {@code fieldSorterAsc} is used, 'Asc' is the default direction used by 'city' given there is no explicit
      * direction listed. The means 'city' is toggled to 'desc'. Note how all other sort fields are removed.</p>
      *
@@ -1147,7 +1172,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h6>Field does not exist</h6>
+     * <p><b>4. Field does not exist</b></p>
      * <p>Since {@code 'location'} does not exist as a sort field, a new sort key value pair is added to the end
      * of the query string upon removing any existing sorting. Note: the 'Asc' at the end of this method name
      * implies the default sort direction which is why 'location' is set to direction 'asc'.</p>
@@ -1161,7 +1186,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h6>How to sort on a nested object?</h6>
+     * <p><b>5. How to sort on a nested object?</b></p>
      * <p>Given a {@code Person} containing an {@code Address} with a suburb, use property dot notation to construct
      * the sort. Note: {@code Person} is assumed to exist in the {@code Model} available in the thymeleaf template.
      * To reiterate, since 'address.suburb' is not a current sort field, all existing sort fields are removed followed
@@ -1177,7 +1202,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h5>Complete example</h5>
+     * <p><b>6. Complete example</b></p>
      * It is useful to define variables in a {@code th:with} statement to avoid needing to pass in the query string
      * or request URI each time it is used within a {@code th} table header for example.
      *
@@ -1259,9 +1284,10 @@ public final class QueryStringHelper {
      * <p>There are 2 variants of this method {@code valueWhenMatchesSortXXX}. The trailing 'Asc' and 'Desc' determines
      * how the equality check is performed as shown below.</p>
      *
-     * <h5>Examples</h5>
-     *
-     * <h6>Implicit sort direction</h6>
+     * <p></p>
+     * <p><b>Thymeleaf usage</b></p>
+     * <p></p>
+     * <p><b>1. Implicit sort direction</b></p>
      *
      * <p>'city' has no direction, using this method with the trailing 'Asc' treats 'city' as having the
      * default direction 'asc' which results in the 'matching' value being returned.
@@ -1276,7 +1302,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h6>Explicit sort direction matches</h6>
+     * <p><b>2. Explicit sort direction matches</b></p>
      * <p>Similar to the above example but 'city' has an explicit direction 'asc' which matches the trailing 'Asc' of
      * this method causing the 'matching' value to be returned. If 'city' had direction 'desc' then use
      * {@code valueWhenMatchesSortDesc} to have the 'matching' value returned.
@@ -1291,7 +1317,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h6>Explicit sort direction does NOT match</h6>
+     * <p><b>3. Explicit sort direction does NOT match</b></p>
      * <p>Similar to the above example but 'city' has an explicit direction 'desc'. Since this method has trailing 'Asc'
      * the equality check is {@code "desc".equals("asc")} which is false causing the 'nonMatching' value to be returned.
      * </p>
@@ -1305,7 +1331,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h6>Field not found</h6>
+     * <p><b>4. Field not found</b></p>
      * <p>If the field does not appear in the query string under a sort key, the 'missing' value is returned. In this
      * example only 'city' is a sort field but the field supplied is 'country'.</p>
      *
@@ -1318,7 +1344,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h5>Complete example</h5>
+     * <p><b>5. Complete example</b></p>
      * <p>The final example shows a use case for creating conditional tooltips. The first argument
      * 'Sort hotel name by default direction of ascending', displays how the column will be sorted given no sorting
      * is applied. Otherwise when the 'name' field has a sort direction equal to {@code asc}, the tooltip displays
@@ -1383,8 +1409,8 @@ public final class QueryStringHelper {
     /**
      * Removes all existing sort keys and associates the supplied field and sort direction values to a sort key which
      * gets appended to the end of the query string.
-     *
-     * <h5>Thymeleaf Usage</h5>
+     * <p></p>
+     * <p><b>Thymeleaf usage</b></p>
      * <p>Notice the new query string only has the new sort field and directions with all previous sorting removed.</p>
      *
      * <blockquote>
@@ -1415,8 +1441,8 @@ public final class QueryStringHelper {
 
     /**
      * Checks if the supplied {@code field} appears as a sort field.
-     *
-     * <h5>Thymeleaf Usage</h5>
+     * <p></p>
+     * <p><b>Thymeleaf usage</b></p>
      *
      * <blockquote>
      * <pre>
@@ -1465,10 +1491,11 @@ public final class QueryStringHelper {
      * 'Desc' determines a sort fields default direction should it be missing. A missing sort direction is
      * referred to as an implicit direction which will return 'asc' if {@code getCurrentSortDirectionAsc}
      * is being used.
+     * <p></p>
+     * <p><b>Thymeleaf usage</b></p>
+     * <p></p>
      *
-     * <h5>Thymeleaf Usage</h5>
-     *
-     * <h6>Sort field has implicit direction</h6>
+     * <p><b>1. Sort field has implicit direction</b></p>
      * <p>sort field {@code suburb} has no direction so the fallback is to return the default 'asc' if
      * {@code getCurrentSortDirectionAsc} is being used.</p>
      *
@@ -1481,7 +1508,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h6>Sort field has explicit direction</h6>
+     * <p><b>2. Sort field has explicit direction</b></p>
      * <p>sort field {@code suburb} has an explicit sort direction of {@code desc} which is returned.</p>
      *
      * <blockquote>
@@ -1493,7 +1520,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <h6>Sort field does not exist</h6>
+     * <p><b>3. Sort field does not exist</b></p>
      * <p>sort field {@code country} does not exist so null is returned</p>
      *
      * <blockquote>
@@ -1505,8 +1532,7 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     *
-     * <h6>Sort field is a nested object</h6>
+     * <p><b>4. Sort field is a nested object</b></p>
      * <p>Consider a {@code Person} containing an {@code Address}. For example, use the property path to access
      * the sort field 'address.suburb'. This assumes the {@code Person} is in the {@code Model}.</p>
      *
@@ -1554,7 +1580,8 @@ public final class QueryStringHelper {
      * variable before proceeding to rebuild the complete URI. To avoid having to supply {@code #request.getRequestURI()}
      * each time, use {@link #urlBuilder(String)}.</p>
      *
-     * <h5>Thymeleaf usage</h5>
+     * <p></p>
+     * <p><b>Thymeleaf usage</b></p>
      * <blockquote>
      * <pre>
      *     th:with="newQueryString=${#qs.incrementPage(#request.getQueryString())}"
@@ -1585,8 +1612,8 @@ public final class QueryStringHelper {
      * accepts the {@code queryString} which concatenates the 2 together. The below example shows the {@code urlBuilder}
      * being defined as a variable for reuse in every table header without needing to supply the {@code requestURI}
      * each time.</p>
-     *
-     * <h5>Thymeleaf Usage</h5>
+     * <p></p>
+     * <p><b>Thymeleaf usage</b></p>
      * <blockquote>
      * <pre>
      *     {@literal
