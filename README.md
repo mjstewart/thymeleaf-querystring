@@ -69,6 +69,8 @@ public class MyApplication {
 - [Increment page number](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#incrementPage-java.lang.String-int-)
 - [Decrement page number](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#decrementPage-java.lang.String-)
 - [Reset page number to 0](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#resetPageNumber-java.lang.String-)
+- [Set page number](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#setPageNumber-java.lang.String-java.lang.String-)
+- [Get page number](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#getPageNumber-java.lang.String-)
 - [Toggle sort direction](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#toggleSortDefaultDesc-java.lang.String-java.lang.String-)
 - [Get sort direction](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#getCurrentSortDirectionDesc-java.lang.String-java.lang.String-)
 - [Is field sorted?](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#isFieldSorted-java.lang.String-java.lang.String-)

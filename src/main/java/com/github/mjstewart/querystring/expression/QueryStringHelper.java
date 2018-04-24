@@ -384,7 +384,7 @@ public final class QueryStringHelper {
      * <pre>
      *     th:with="newQueryString=${#qs.getFirstValue(#request.getQueryString(), 'age')}"
      *     => "30"
-     *     </pre>
+     * </pre>
      * </blockquote>
      *
      * <p><b>2. Duplicate keys</b></p>
@@ -727,16 +727,19 @@ public final class QueryStringHelper {
     }
 
     /**
-     * Increments the value for key {@code 'page'} by 1 providing the value is numeric otherwise there is no effect.
-     * This method is useful when working with spring {@code PagingAndSortingRepository} which uses
-     * the key {@code 'page'} by convention.
+     * Increments the value for key {@code 'page'} by {@code 1} providing the 'page' exists and its value is numeric. If the
+     * {@code 'page'} key does not exist, {@code page=1} is explicitly added to the end of the query string implying
+     * there is a current implicit page of {@code 0}. This method is useful when working with spring
+     * {@code PagingAndSortingRepository} which uses the key {@code 'page'} by convention.
      *
      * <p>Use {@link #incrementPage(String, int)} to provide automatic upper bounds checking to ensure page is not
      * incremented beyond what the {@code PagingAndSortingRepository} will provide.</p>
      * <p></p>
      *
      * <p><b>Thymeleaf usage</b></p>
+     * <p></p>
      *
+     * <p><b>1. Page exists</b></p>
      * <blockquote>
      * <pre>
      *   #request.getQueryString() = "city=dallas&country=US&sort=country,desc&page=0"
@@ -746,19 +749,34 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.</p>
+     * <p><b>2. Page does not exist</b></p>
+     * When the page does not exist, explicitly add {@code page=1} to the end of the query string.
+     * <blockquote>
+     * <pre>
+     *   #request.getQueryString() = "city=dallas&country=US&sort=country,desc"
+     *
+     *   th:with="newQueryString=${#qs.incrementPage(#request.getQueryString())}"
+     *   => newQueryString = city=dallas&country=US&sort=country,desc&page=1
+     * </pre>
+     * </blockquote>
+     *
+     * <p>Supplying a {@code null} or empty {@code queryString} will result in the query string {@code page=1}.</p>
      *
      * @param queryString The current query string.
      * @return The new query string.
      */
     public String incrementPage(String queryString) {
+        if (getPageNumber(queryString) == null) {
+            return add(queryString, "page", "1");
+        }
         return adjustNumericValueBy(queryString, "page", Collections.singletonList(0), 1);
     }
 
     /**
-     * The same as {@link #incrementPage(String)} except only increments the existing value if it is below the
-     * {@code maxBound}. This is convenient to use to avoid having to implement additional bounds checking in the
-     * template code.
+     * The same as {@link #incrementPage(String)} except only increments the existing value if it is less than the
+     * {@code maxBound}. If the 'page' key is missing, it is explicitly added to the end of the query string providing
+     * the implicit {@code page=0 < maxBound} holds.
+     * This is convenient to use to avoid having to implement additional bounds checking in the template code
      * <p></p>
      *
      * <p><b>Thymeleaf usage</b></p>
@@ -773,24 +791,34 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
+     * <p>Supplying a {@code null} or empty {@code queryString} will result in the query string {@code page=1}
+     * providing the implicit {@code page=0 < maxBound} holds.</p>
+     *
      * @param queryString The current query string.
      * @param maxBound    Increment current value only if it is below the {@code maxBound}.
      * @return The new query string.
      */
     public String incrementPage(String queryString, int maxBound) {
+        if (getPageNumber(queryString) == null && 0 < maxBound) {
+            return add(queryString, "page", "1");
+        }
         Predicate<Integer> incrementIfBelowMax = currentValue -> currentValue < maxBound;
         return QueryString.of(queryString, uris)
                 .adjustNumericValueBy("page", Collections.singletonList(0), 1, incrementIfBelowMax);
     }
 
     /**
-     * Decrements the value for key {@code 'page'} by 1 providing the value is numeric otherwise there is no effect.
+     * Decrements the value for key {@code 'page'} by {@code 1} providing 'page' exists and its value is numeric.
      * The value is not decremented below {@code 0} which eliminates the need to do lower bound checking within the thymeleaf
-     * template itself. This method is useful when working with spring {@code PagingAndSortingRepository} which uses
+     * template itself. If the key {@code 'page'} does not exist, it is explicitly added with the value {@code 0}.
+     * This method is useful when working with spring {@code PagingAndSortingRepository} which uses
      * the key {@code 'page'} by convention.
      * <p></p>
      *
      * <p><b>Thymeleaf usage</b></p>
+     * <p></p>
+     *
+     * <p><b>1. Page exists</b></p>
      * <blockquote>
      * <pre>
      *     #request.getQueryString() = "city=dallas&country=US&sort=country,desc&page=1"
@@ -800,26 +828,34 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.</p>
+     * <p><b>2. Page does not exist</b></p>
+     * {@code page=0} is explicitly added.
+     * <blockquote>
+     * <pre>
+     *     #request.getQueryString() = "city=dallas&country=US&sort=country,desc"
+     *
+     *     th:with="newQueryString=${#qs.decrementPage(#request.getQueryString())}"
+     *     => newQueryString = city=dallas&country=US&sort=country,desc&page=0
+     * </pre>
+     * </blockquote>
+     *
+     * <p>Supplying a {@code null} or empty {@code queryString} will return the query string {@code page=0}.</p>
      *
      * @param queryString The current query string.
      * @return The new query string.
      */
     public String decrementPage(String queryString) {
+        if (getPageNumber(queryString) == null) {
+            return add(queryString, "page", "0");
+        }
         Predicate<Integer> decrementOnlyIfAboveZero = currentValue -> currentValue > 0;
         return QueryString.of(queryString, uris)
                 .adjustNumericValueBy("page", Collections.singletonList(0), -1, decrementOnlyIfAboveZero);
     }
 
     /**
-     * Sets the 'page' key to {@code 0} should it exist otherwise returns the unmodified query string.
-     * This is a convenience method which is equivalent to using {@link #replaceFirst(String, String, String)}.
-     *
-     * <blockquote>
-     * <pre>
-     *         th:with="newQueryString=${#qs.replaceFirst(#request.getQueryString(), 'page', '0')}"
-     *     </pre>
-     * </blockquote>
+     * Sets the 'page' key to {@code 0} should it exist otherwise explicitly adds {@code page=0} to the query string.
+     * <p></p>
      *
      * <p><b>Thymeleaf usage</b></p>
      * The typical use case is providing a back button that goes all the way back to page {@code 0}.
@@ -839,26 +875,43 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.</p>
+     * <p><b>1. 'page' key exists</b></p>
+     * <blockquote>
+     * <pre>
+     *     #request.getQueryString() = "city=dallas&country=US&sort=country,desc&page=1"
+     *
+     *     th:with="newQueryString=${#qs.resetPageNumber(#request.getQueryString())}"
+     *     => newQueryString = city=dallas&country=US&sort=country,desc&page=0
+     * </pre>
+     * </blockquote>
+     *
+     * <p><b>2. 'page' key does not exist</b></p>
+     * {@code 'page=0'} is explicitly added to the end.
+     * <blockquote>
+     * <pre>
+     *     #request.getQueryString() = "city=dallas&country=US&sort=country,desc"
+     *
+     *     th:with="newQueryString=${#qs.resetPageNumber(#request.getQueryString())}"
+     *     => newQueryString = city=dallas&country=US&sort=country,desc&page=0
+     * </pre>
+     * </blockquote>
+     *
+     * <p>Supplying a {@code null} or empty {@code queryString} will return the query string {@code page=0}.</p>
      *
      * @param queryString The current query string.
      * @return The new query string with the page set to {@code 0} should the page key exist.
      */
     public String resetPageNumber(String queryString) {
+        if (getPageNumber(queryString) == null) {
+            return add(queryString, "page", "0");
+        }
         return replaceFirst(queryString, "page", "0");
     }
 
     /**
-     * Sets the 'page' key to the supplied {@code number} should it exist otherwise returns the unmodified query string.
-     * This is a convenience method which is equivalent to using {@link #replaceFirst(String, String, String)}
-     * as show directly below.
+     * Sets the 'page' key to the supplied {@code number} should it exist otherwise explicitly adds {@code page=number}
+     * to the end of the query string where 'number' is the new page value.
      * Use {@link #incrementPage(String, int)} or {@link #decrementPage(String)} if page scrolling is needed.
-     *
-     * <blockquote>
-     * <pre>
-     *         th:with="newQueryString=${#qs.replaceFirst(#request.getQueryString(), 'page', '4')}"
-     * </pre>
-     * </blockquote>
      *
      * <p><b>Thymeleaf usage</b></p>
      * The typical use case is providing a next button that skips all the way to the last page.
@@ -888,14 +941,64 @@ public final class QueryStringHelper {
      * </pre>
      * </blockquote>
      *
-     * <p>Supplying a {@code null} or empty {@code queryString} will return an empty string.</p>
+     * <p><b>1. 'page' key exists</b></p>
+     * <blockquote>
+     * <pre>
+     *     #request.getQueryString() = "city=dallas&country=US&sort=country,desc&page=1"
+     *
+     *     th:with="newQueryString=${#qs.setPageNumber(#request.getQueryString(), '5')}"
+     *     => newQueryString = city=dallas&country=US&sort=country,desc&page=5
+     * </pre>
+     * </blockquote>
+     *
+     * <p><b>2. 'page' key does not exist</b></p>
+     * {@code 'page=3'} is explicitly added to the end.
+     * <blockquote>
+     * <pre>
+     *     #request.getQueryString() = "city=dallas&country=US&sort=country,desc"
+     *
+     *     th:with="newQueryString=${#qs.setPageNumber(#request.getQueryString(), '3')}"
+     *     => newQueryString = city=dallas&country=US&sort=country,desc&page=3
+     * </pre>
+     * </blockquote>
+     *
+     * <p>Supplying a {@code null} or empty {@code queryString} will result in a query string of {@code 'page=number'}.</p>
      *
      * @param queryString The current query string.
      * @param number      The new value to set the 'page' key to should it exist.
      * @return The new query string with the page set to {@code number} should the page key exist.
      */
     public String setPageNumber(String queryString, String number) {
+        if (getPageNumber(queryString) == null) {
+            return add(queryString, "page", number);
+        }
         return replaceFirst(queryString, "page", number);
+    }
+
+    /**
+     * If the 'page' key exists, the page number is returned otherwise {@code null}.
+     * This method is provided for convenience and is equivalent to
+     * <blockquote>
+     * <pre>
+     *     th:with="newQueryString=${#qs.getFirstValue(#request.getQueryString(), 'page')}"
+     * </pre>
+     * </blockquote>
+     *
+     * <p><b>Thymeleaf usage</b></p>
+     * <blockquote>
+     * <pre>
+     *   #request.getQueryString() = "city=dallas&country=US&sort=country&page=4"
+     *
+     *   th:with="pageNumber=${#qs.getPageNumber(#request.getQueryString())}"
+     *   => 4
+     * </pre>
+     * </blockquote>
+     *
+     * @param queryString The current query string.
+     * @return The 'page' number should it exist otherwise {@code null}.
+     */
+    public String getPageNumber(String queryString) {
+        return getFirstValue(queryString, "page");
     }
 
     /**
@@ -1129,6 +1232,18 @@ public final class QueryStringHelper {
      * other sort fields removed. Otherwise if the {@code field} does not exist under a 'sort key', all sorting is
      * removed with the new sort field appended to the end of the query string having form {@code 'field,defaultDirection'}.
      * {@code 'defaultDirection'} is determined by the trailing 'Asc' or 'Desc'.</p>
+     *
+     * <p></p>
+     * <p><b>How to know when to pick {@code fieldSorterAsc} or {@code fieldSorterDesc}?</b></p>
+     * It depends if there is any existing sorting applied.
+     * <p></p>
+     * <ul>
+     * <li>If there is no sorting applied and you would like the field to have its first toggle direction to be
+     * 'asc', use {@code fieldSorterAsc} as per example {@code 1, 4, 5}</li>
+     * <li>If there is sorting applied WITHOUT explicit direction as per example {@code 3}. You need to select
+     * the 'Asc' or 'Desc' version based the default sorting applied by the {@code PagingAndSortingRepository} for
+     * that field.</li>
+     * </ul>
      *
      * <p></p>
      * <p><b>Thymeleaf usage</b></p>

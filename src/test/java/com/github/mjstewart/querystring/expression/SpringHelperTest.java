@@ -12,29 +12,33 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 public class SpringHelperTest {
 
     @Test
-    public void incrementPage_QueryStringIsNull_ReturnEmptyString() {
+    public void incrementPage_QueryStringIsNull_AddsIncrementedPage() {
+        String expect = "page=1";
         QueryStringHelper helper = new QueryStringHelper();
         String result = helper.incrementPage(null);
-        assertThat(result).isEmpty();
+        assertThat(result).isEqualTo(expect);
     }
 
     @Test
-    public void incrementPage_QueryStringIsEmpty_ReturnEmptyString() {
+    public void incrementPage_QueryStringIsEmpty_AddsIncrementedPage() {
+        String expect = "page=1";
         QueryStringHelper helper = new QueryStringHelper();
         String result = helper.incrementPage("");
-        assertThat(result).isEmpty();
+        assertThat(result).isEqualTo(expect);
     }
 
     /**
-     * When the 'page' key is not found, the original query string should be returned.
+     * When the 'page' key is not found, it is explicitly added with its value set to 1 which
+     * implies an implicit current page of 0.
      */
     @Test
-    public void incrementPage_PageKeyNotFound_HasNoEffect() {
+    public void incrementPage_PageKeyNotFound_ExplicitlyAddsPage() {
         String query = "key4=ab%20c&key8=100&key9=fgy&key8=23&key11=50&key8=hello_world-53&key8=-5&key8=23-about&key8=80";
+        String expect = "key4=ab%20c&key8=100&key9=fgy&key8=23&key11=50&key8=hello_world-53&key8=-5&key8=23-about&key8=80&page=1";
 
         QueryStringHelper helper = new QueryStringHelper();
         String result = helper.incrementPage(query);
-        assertThat(result).isEqualTo(query);
+        assertThat(result).isEqualTo(expect);
     }
 
     /**
@@ -64,23 +68,125 @@ public class SpringHelperTest {
     }
 
     /**
-     * Test that the incrementPage with max bound handles a null query string correctly.
+     * When there is no 'page' key, you can think of there being an implicit 'page=0'.
+     * The page should only explicitly be added if page=0 < maxBound.
      */
     @Test
-    public void incrementPage_MaxBound_QueryStringIsNull_ReturnEmptyString() {
+    public void incrementPage_MaxBound_QueryStringIsNull_AddPage_BelowMaxBound() {
+        String expect = "page=1";
         QueryStringHelper helper = new QueryStringHelper();
-        String result = helper.incrementPage(null, 5);
+        String result = helper.incrementPage(null, 1);
+        assertThat(result).isEqualTo(expect);
+    }
+
+    /**
+     * When there is no 'page' key, you can think of there being an implicit 'page=0'.
+     * The page should only explicitly be added if page=0 < maxBound.
+     */
+    @Test
+    public void incrementPage_MaxBound_QueryStringIsNull_DoesNotAddPage_EqualMaxBound() {
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.incrementPage(null, 0);
         assertThat(result).isEmpty();
     }
 
     /**
-     * Test that the incrementPage with max bound handles a null query string correctly.
+     * When there is no 'page' key, you can think of there being an implicit 'page=0'.
+     * The page should only explicitly be added if page=0 < maxBound.
      */
     @Test
-    public void incrementPage_MaxBound_QueryStringIsEmpty_ReturnEmptyString() {
+    public void incrementPage_MaxBound_QueryStringIsNull_DoesNotAddPage_AboveMaxBound() {
         QueryStringHelper helper = new QueryStringHelper();
-        String result = helper.incrementPage("", 5);
+        String result = helper.incrementPage(null, -1);
         assertThat(result).isEmpty();
+    }
+
+
+    /**
+     * When there is no 'page' key, you can think of there being an implicit 'page=0'.
+     * The page should only explicitly be added if page=0 < maxBound.
+     */
+    @Test
+    public void incrementPage_MaxBound_QueryStringIsEmpty_AddPage_BelowMaxBound() {
+        String expect = "page=1";
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.incrementPage("", 1);
+        assertThat(result).isEqualTo(expect);
+    }
+
+    /**
+     * When there is no 'page' key, you can think of there being an implicit 'page=0'.
+     * The page should only explicitly be added if page=0 < maxBound.
+     */
+    @Test
+    public void incrementPage_MaxBound_QueryStringIsEmpty_DoesNotAddPage_EqualMaxBound() {
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.incrementPage("", 0);
+        assertThat(result).isEmpty();
+    }
+
+    /**
+     * When there is no 'page' key, you can think of there being an implicit 'page=0'.
+     * The page should only explicitly be added if page=0 < maxBound.
+     */
+    @Test
+    public void incrementPage_MaxBound_QueryStringIsEmpty_DoesNotAddPage_AboveMaxBound() {
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.incrementPage("", -1);
+        assertThat(result).isEmpty();
+    }
+
+    /**
+     * When the 'page' key is not found, it is explicitly added with its value set to 1 only if
+     * the max bound is {@code >= 1}.
+     */
+    @Test
+    public void incrementPage_MaxBound_PageKeyNotFound_DoesNotAddPage_IllegalMaxBound() {
+        String query = "key4=ab%20c&key8=100&key9=fgy&key8=23&key11=50&key8=hello_world-53&key8=-5&key8=23-about&key8=80";
+
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.incrementPage(query, 0);
+        assertThat(result).isEqualTo(query);
+    }
+
+    /**
+     * When the 'page' key is not found, it is explicitly added with its value set to 1 only if
+     * the max bound is {@code >= 1}.
+     */
+    @Test
+    public void incrementPage_MaxBound_PageKeyNotFound_AddPage_EqualLegalMaxBound() {
+        String query = "key4=ab%20c&key8=100&key9=fgy&key8=23&key11=50&key8=hello_world-53&key8=-5&key8=23-about&key8=80";
+        String expect = "key4=ab%20c&key8=100&key9=fgy&key8=23&key11=50&key8=hello_world-53&key8=-5&key8=23-about&key8=80&page=1";
+
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.incrementPage(query, 1);
+        assertThat(result).isEqualTo(expect);
+    }
+
+    /**
+     * When the 'page' key is not found, it is explicitly added with its value set to 1 only if
+     * the max bound is {@code >= 1}.
+     */
+    @Test
+    public void incrementPage_MaxBound_PageKeyNotFound_AddPage_GreaterLegalMaxBound() {
+        String query = "key4=ab%20c&key8=100&key9=fgy&key8=23&key11=50&key8=hello_world-53&key8=-5&key8=23-about&key8=80";
+        String expect = "key4=ab%20c&key8=100&key9=fgy&key8=23&key11=50&key8=hello_world-53&key8=-5&key8=23-about&key8=80&page=1";
+
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.incrementPage(query, 2);
+        assertThat(result).isEqualTo(expect);
+    }
+
+    /**
+     * If for whatever reason the page value is non numeric, incrementing should do nothing and return original query string.
+     */
+    @Test
+    public void incrementPage_MaxBound_PageKeyNotNumeric_HasNoEffect() {
+        String query = "key4=ab%20c&key8=100&page=X-Y-Z&key9=fgy&key8=23&key11=50&key8=hello_world-53&key8=-5&key8=23-about&key8=80";
+
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.incrementPage(query);
+        assertThat(result).isEqualTo(query);
     }
 
     /**
@@ -103,12 +209,11 @@ public class SpringHelperTest {
     @Test
     public void incrementPage_EqualMaxBound_DoesNotIncrement() {
         String query = "key2=500&key3=abc&page=5&key6=hello";
-        String expected = "key2=500&key3=abc&page=5&key6=hello";
 
         QueryStringHelper helper = new QueryStringHelper();
         // current value is 5, max bound is 5 so it is not incremented.
         String result = helper.incrementPage(query, 5);
-        assertThat(result).isEqualTo(expected);
+        assertThat(result).isEqualTo(query);
     }
 
     /**
@@ -126,29 +231,32 @@ public class SpringHelperTest {
     }
 
     @Test
-    public void decrementPage_QueryStringIsNull_ReturnEmptyString() {
+    public void decrementPage_QueryStringIsNull_AddsPageKey() {
+        String expect = "page=0";
         QueryStringHelper helper = new QueryStringHelper();
         String result = helper.decrementPage(null);
-        assertThat(result).isEmpty();
+        assertThat(result).isEqualTo(expect);
     }
 
     @Test
-    public void decrementPage_QueryStringIsEmpty_ReturnEmptyString() {
+    public void decrementPage_QueryStringIsEmpty_AddsPageKey() {
+        String expect = "page=0";
         QueryStringHelper helper = new QueryStringHelper();
         String result = helper.decrementPage("");
-        assertThat(result).isEmpty();
+        assertThat(result).isEqualTo(expect);
     }
 
     /**
-     * When the 'page' key is not found, the original query string should be returned.
+     * When the 'page' key is not found, it should be explicitly added with the value 0.
      */
     @Test
-    public void decrementPage_PageKeyNotFound_HasNoEffect() {
+    public void decrementPage_PageKeyNotFound_AddsPageKey() {
         String query = "key4=ab%20c&key8=100&key9=fgy&key8=23&key11=50&key8=hello_world-53&key8=-5&key8=23-about&key8=80";
+        String expect = "key4=ab%20c&key8=100&key9=fgy&key8=23&key11=50&key8=hello_world-53&key8=-5&key8=23-about&key8=80&page=0";
 
         QueryStringHelper helper = new QueryStringHelper();
         String result = helper.decrementPage(query);
-        assertThat(result).isEqualTo(query);
+        assertThat(result).isEqualTo(expect);
     }
 
     /**
@@ -166,7 +274,7 @@ public class SpringHelperTest {
 
     /**
      * When the 'page' key is found its value should be decremented by one ONLY if its value is greater than 0.
-     * This ensure page can only have min value of 0.
+     * This ensures page can only have min value of 0.
      */
     @Test
     public void decrementPage_PageKey_IsZero_ShouldNotBeDecrementedByOne() {
@@ -787,27 +895,30 @@ public class SpringHelperTest {
 
     @Test
     public void resetPageNumber_QueryStringIsNull_ReturnsEmptyString() {
+        String expect = "page=0";
         QueryStringHelper helper = new QueryStringHelper();
         String result = helper.resetPageNumber(null);
-        assertThat(result).isEmpty();
+        assertThat(result).isEqualTo(expect);
     }
 
     @Test
     public void resetPageNumber_QueryStringIsEmpty_ReturnsEmptyString() {
+        String expect = "page=0";
         QueryStringHelper helper = new QueryStringHelper();
         String result = helper.resetPageNumber("");
-        assertThat(result).isEmpty();
+        assertThat(result).isEqualTo(expect);
     }
 
     /**
-     * When there is no 'page' key, return the original unmodified query string.
+     * When there is no 'page' key, explicitly add {@code page=0} to the query string.
      */
     @Test
-    public void resetPageNumber_PageKeyNotFound_ReturnsQueryString() {
+    public void resetPageNumber_PageKeyNotFound_ExplicitlyAddsPageKey() {
         String query = "city=melbourne&state=vic&country=aus&postcode=3000&sort=city,asc";
+        String expect = "city=melbourne&state=vic&country=aus&postcode=3000&sort=city,asc&page=0";
         QueryStringHelper helper = new QueryStringHelper();
         String result = helper.resetPageNumber(query);
-        assertThat(result).isEqualTo(query);
+        assertThat(result).isEqualTo(expect);
     }
 
     /**
@@ -834,28 +945,32 @@ public class SpringHelperTest {
     }
 
     @Test
-    public void setPageNumber_QueryStringIsNull_ReturnsEmptyString() {
+    public void setPageNumber_QueryStringIsNull_AddsPageKey() {
+        String expect = "page=5";
         QueryStringHelper helper = new QueryStringHelper();
         String result = helper.setPageNumber(null, "5");
-        assertThat(result).isEmpty();
+        assertThat(result).isEqualTo(expect);
     }
 
     @Test
     public void setPageNumber_QueryStringIsEmpty_ReturnsEmptyString() {
+        String expect = "page=5";
         QueryStringHelper helper = new QueryStringHelper();
         String result = helper.setPageNumber("", "5");
-        assertThat(result).isEmpty();
+        assertThat(result).isEqualTo(expect);
     }
 
     /**
-     * When there is no 'page' key, return the original unmodified query string.
+     * When there is no 'page' key, it should be explicitly added to the end of the query string
+     * with the supplied value.
      */
     @Test
-    public void setPageNumber_PageKeyNotFound_ReturnsQueryString() {
+    public void setPageNumber_PageKeyNotFound_ExplicitlyAddPageKey() {
         String query = "city=melbourne&state=vic&country=aus&postcode=3000&sort=city,asc";
+        String expect = "city=melbourne&state=vic&country=aus&postcode=3000&sort=city,asc&page=5";
         QueryStringHelper helper = new QueryStringHelper();
         String result = helper.setPageNumber(query, "5");
-        assertThat(result).isEqualTo(query);
+        assertThat(result).isEqualTo(expect);
     }
 
     /**
@@ -881,6 +996,38 @@ public class SpringHelperTest {
         QueryStringHelper helper = new QueryStringHelper();
         String result = helper.setPageNumber(query, "3");
         assertThat(result).isEqualTo(expect);
+    }
+
+    @Test
+    public void getPageNumber_QueryStringIsNull_ReturnsNull() {
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.getPageNumber(null);
+        assertThat(result).isNull();
+    }
+
+    @Test
+    public void getPageNumber_QueryStringIsEmpty_ReturnsNull() {
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.getPageNumber(null);
+        assertThat(result).isNull();
+    }
+
+    @Test
+    public void getPageNumber_PageDoesNotExist_ReturnsNull() {
+        String query = "city=melbourne&state=vic&country=aus&postcode=3000&sort=city,asc";
+
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.getPageNumber(query);
+        assertThat(result).isNull();
+    }
+
+    @Test
+    public void getPageNumber_PageExists_ReturnsPageValue() {
+        String query = "city=melbourne&state=vic&page=3&country=aus&postcode=3000&sort=city,asc";
+
+        QueryStringHelper helper = new QueryStringHelper();
+        String result = helper.getPageNumber(query);
+        assertThat(result).isEqualTo("3");
     }
 
     @Test
