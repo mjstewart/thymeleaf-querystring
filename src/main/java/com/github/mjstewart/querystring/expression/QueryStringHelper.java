@@ -1240,9 +1240,9 @@ public final class QueryStringHelper {
      * <ul>
      * <li>If there is no sorting applied and you would like the field to have its first toggle direction to be
      * 'asc', use {@code fieldSorterAsc} as per example {@code 1, 4, 5}</li>
-     * <li>If there is sorting applied WITHOUT explicit direction as per example {@code 3}. You need to select
-     * the 'Asc' or 'Desc' version based the default sorting applied by the {@code PagingAndSortingRepository} for
-     * that field.</li>
+     * <li>If there is sorting applied with implicit directions as per example {@code 3}. You need to select
+     * the 'Asc' or 'Desc' method matching the default sorting applied by the {@code PagingAndSortingRepository} for
+     * the given field.</li>
      * </ul>
      *
      * <p></p>
