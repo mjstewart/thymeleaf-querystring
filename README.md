@@ -43,10 +43,13 @@ public class MyApplication {
 }
 ```
 
+# Tutorials
+
+[![Youtube demo](https://github.com/mjstewart/thymeleaf-querystring/blob/master/video-thumb.png)](https://www.youtube.com/playlist?list=PL3YkDUcLBd9-5qsfWb5moY9e_iqU6ylm3 "Youtube demo")
+
+[Example code used in video](https://github.com/mjstewart/hotel-reservation-springmvc/blob/master/src/main/resources/templates/hotel/hotels.html)
+
 # Features
-
-# Video...
-
 
 ### Popular
 - [Add key value pair](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#add-java.lang.String-java.lang.String-java.lang.String-)

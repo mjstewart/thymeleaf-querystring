@@ -7,6 +7,9 @@
     <groupId>com.github.mjstewart</groupId>
     <artifactId>thymeleaf-querystring</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>${project.groupId}:${project.artifactId}</name>
+    <url>https://github.com/mjstewart/thymeleaf-querystring</url>
 
     <description>Thymeleaf dialect for manipulating query strings with spring mvc helpers</description>
 
@@ -17,6 +20,19 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
+    <developers>
+        <developer>
+            <name>Matt Stewart</name>
+            <organizationUrl>https://github.com/mjstewart/thymeleaf-querystring</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>scm:git:git@github.com:mjstewart/thymeleaf-querystring.git</url>
+        <connection>scm:git:git@github.com:mjstewart/thymeleaf-querystring.git</connection>
+        <developerConnection>scm:git:git@github.com:mjstewart/thymeleaf-querystring.git</developerConnection>
+    </scm>
 
     <properties>
         <maven.compile.source>1.8</maven.compile.source>
@@ -83,7 +99,6 @@
             </plugin>
         </plugins>
     </build>
-    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
