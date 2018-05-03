@@ -86,3 +86,19 @@ public class MyApplication {
 
 ### More
 See [Docs](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html) for additional methods.
+
+
+### Examples
+
+Complete example showing how to implement a table with paging and sorting plus conditional css and tooltips
+. [View](https://github.com/mjstewart/hotel-reservation-springmvc/blob/master/src/main/resources/templates/hotel/hotels.html#L21)
+
+The hotel name on [Line 30](https://github.com/mjstewart/hotel-reservation-springmvc/blob/master/src/main/resources/templates/hotel/hotels.html#L30)
+is sorted using `fieldSorterAsc` since ascending is assumed the default sort direction according to whatever the spring 
+`PagingAndSortingRepository` configuration is for this field. This means the first toggle will change direction to descending.
+
+The next field `stars` on line 40 is sorted using `fieldSorterDesc` since the default sort direction is descending resulting in the first toggle
+changing the sort direction to ascending.
+
+The semantics for `cssWhenFieldIsAsc` and `valueWhenMatchesSortDesc` work the same in terms of how to read what the 
+trailing `Asc` or `Desc` does. See docs for full examples.
