@@ -88,7 +88,7 @@ public class MyApplication {
 See [Docs](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html) for additional methods.
 
 
-### Examples
+# Examples
 
 Complete example showing how to implement a table with paging and sorting plus conditional css and tooltips
 . [View](https://github.com/mjstewart/hotel-reservation-springmvc/blob/master/src/main/resources/templates/hotel/hotels.html#L21)
