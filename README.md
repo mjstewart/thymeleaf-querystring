@@ -22,7 +22,9 @@ This software is licensed under the [Apache License 2.0](https://github.com/mjst
 - Thymeleaf 3.0.0+
 
 # Maven info
-TODO
+
+This library is not on maven central yet so you will need to build the jar and manually add it to the project.
+For convenience, I have already built the latest jar so you can download directly or clone and copy.
 
 # Installation
 
@@ -55,16 +57,16 @@ public class MyApplication {
 - [Add key value pair](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#add-java.lang.String-java.lang.String-java.lang.String-)
 - [Add many key value pairs](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#addAll-java.lang.String-java.util.List-)
 - [Get a keys value](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#getFirstValue-java.lang.String-java.lang.String-)
-- [Get every value associated to a key](http://localhost:63342/querystring/docs/com/github/mjstewart/querystring/expression/QueryStringHelper.html#getAllValues-java.lang.String-java.lang.String-)
+- [Get every value associated to a key](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#getAllValues-java.lang.String-java.lang.String-)
 - [Remove single key](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#removeFirst-java.lang.String-java.lang.String-)
 - [Remove all keys](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#removeAll-java.lang.String-java.util.List-)
 - [Remove key matching value](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#removeKeyMatchingValue-java.lang.String-java.lang.String-java.lang.String-)
-- [Remove any key matching value](http://localhost:63342/querystring/docs/com/github/mjstewart/querystring/expression/QueryStringHelper.html#removeAnyKeyMatchingValue-java.lang.String-java.lang.String-)
-- [Remove all and add](http://localhost:63342/querystring/docs/com/github/mjstewart/querystring/expression/QueryStringHelper.html#removeAllAndAdd-java.lang.String-java.util.List-java.util.List-)
-- [Remove nth occurrence](http://localhost:63342/querystring/docs/com/github/mjstewart/querystring/expression/QueryStringHelper.html#removeNth-java.lang.String-java.lang.String-int-)
-- [Remove first N values](http://localhost:63342/querystring/docs/com/github/mjstewart/querystring/expression/QueryStringHelper.html#replaceN-java.lang.String-java.lang.String-java.util.List-)
+- [Remove any key matching value](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#removeAnyKeyMatchingValue-java.lang.String-java.lang.String-)
+- [Remove all and add](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#removeAllAndAdd-java.lang.String-java.util.List-java.util.List-)
+- [Remove nth occurrence](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#removeNth-java.lang.String-java.lang.String-int-)
+- [Remove first N values](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#replaceN-java.lang.String-java.lang.String-java.util.List-)
 - [Replace existing value](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#replaceFirst-java.lang.String-java.lang.String-java.lang.String-)
-- [Replace nth occurrence](http://localhost:63342/querystring/docs/com/github/mjstewart/querystring/expression/QueryStringHelper.html#replaceNth-java.lang.String-java.util.Map-)
+- [Replace nth occurrence](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#replaceNth-java.lang.String-java.util.Map-)
 - [Update a numeric value](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#adjustFirstNumericValueBy-java.lang.String-java.lang.String-int-)
 
 ### Spring mvc helpers
@@ -78,7 +80,7 @@ public class MyApplication {
 - [Get sort direction](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#getCurrentSortDirectionDesc-java.lang.String-java.lang.String-)
 - [Is field sorted?](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#isFieldSorted-java.lang.String-java.lang.String-)
 - [Set sort direction](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#setSortDirectionDesc-java.lang.String-java.lang.String-)
-- [Keep sort field, remove the rest](http://localhost:63342/querystring/docs/com/github/mjstewart/querystring/expression/QueryStringHelper.html#keepSortField-java.lang.String-java.lang.String-)
+- [Keep sort field, remove the rest](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#keepSortField-java.lang.String-java.lang.String-)
 - [Create new sort](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#createNewSort-java.lang.String-java.util.List-)
 - [Conditional values on sort direction](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#valueWhenMatchesSortDesc-java.lang.String-java.lang.String-java.lang.String-java.lang.String-)
 - [Table column sorting](https://mjstewart.github.io/thymeleaf-querystring/com/github/mjstewart/querystring/expression/QueryStringHelper.html#fieldSorterDesc-java.lang.String-)
